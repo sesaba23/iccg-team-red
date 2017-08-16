@@ -1,0 +1,2 @@
+class WhiteboardsController < ApplicationController
+end

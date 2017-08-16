@@ -1,0 +1,2 @@
+class GuessersController < ApplicationController
+end
