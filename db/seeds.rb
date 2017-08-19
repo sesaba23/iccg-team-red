@@ -6,5 +6,5 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-game = Game.create
+game = Game.create(current_questioner: "reader", current_question: "is the document about elephants?")
 game.reader = Reader.create
