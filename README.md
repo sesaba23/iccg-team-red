@@ -24,3 +24,4 @@ Developed by team-red:
  * Pending: Define Entity-model and migrate DB --> Expect done  app review version by sesaba23 on Wednesday 
  * Added some gems to Gemfile
  * First deployment to Heroku with "Hello word!"
+ * you can check in: http://iccg-team-red-preview.herokuapp.com/
