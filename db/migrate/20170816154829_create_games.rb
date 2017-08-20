@@ -6,6 +6,7 @@ class CreateGames < ActiveRecord::Migration[5.1]
       t.string :current_reader_answer
       t.string :current_guesser_answer
       t.string :current_judgement
+      t.belongs_to :document, index: true
 
       t.timestamps
     end

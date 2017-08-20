@@ -25,22 +25,29 @@
 # The Game class
 # ==============
 #
-# This class represents the game and provides methods for the basic
-# manipulations
-# * submitting questions
-# * submitting answers
-# * get the anonymoized answers for the current round
-# * select one of the anonymous answers as suspicious
-# * generating scores for the current round,
-#   selecting the next role to ask a question
-#   and starting the next round
+# This class represents the game and provides methods for manipulating the game
+# and viewing information about its state.
 
 class Game < ApplicationRecord
   has_one :reader
   has_one :guesser
   has_one :judge
-  has_one :document
+  belongs_to :document
   has_one :whiteboard
+
+  # a game should be created in the following way:
+  #
+  # game = Game.create(document_id) or
+  # document.games.push(Game.create)
+  # game.setup(reader_id, guesser_id, judge_id)
+  #
+  # reader_id is the id of the user who plays as reader
+  # guesser_id is the id of the user who plays as guesser
+  # judge_id is the id of the user who plays as judge
+  # ids must correspond to users
+  # prepares the game for play
+  def setup(reader_id, guesser_id, judge_id, questioner=:reader)
+  end
 
   # role: must be :reader, :guesser or :judge.
   # question: a string
@@ -53,7 +60,16 @@ class Game < ApplicationRecord
     # TODO: incomplete, needs revision
     if self.current_questioner.to_sym == role
       self.update(current_question: question)
+    else
+      raise RoleMismatchError
     end
+  end
+
+  # role is :reader or :guesser
+  # return true if role is the current questioner
+  # return false otherwise
+  def is_questioner(role)
+    raise NotImplementedError
   end
 
   # role: must be :reader, :guesser or :judge.
@@ -76,19 +92,57 @@ class Game < ApplicationRecord
     raise NotImplementedError
   end
 
-  # answer_id: must be :answer1 or :answer2, which are
+  # answer_key: must be :answer1 or :answer2, which are
   # keys of the hash returned by get_anonymized_answers during this
   # round.
-  # answer_id is the key of the question which has been identified
+  # answer_key is the key of the question which has been identified
   # as most suspect.
-  # Submits a judgement.
-  def more_suspect_answer_is(answer_id)
+  # if answer_key is not :answer1 or :answer2 raises ArgumentError.
+  # if called before get_anonymized_answers, raises NotYetAvailableError.
+  # otherwise submits a judgement.
+  def more_suspect_answer_is(answer_key)
+    raise NotImplementedError
+  end
+
+  # if called before more_suspicious_answer_is, raises NotYetAvailableError
+  # otherwise returns the role (symbol) of the author of the answer which was judged
+  # more suspicious.
+  def judged_suspicious
     raise NotImplementedError
   end
 
   # if no question has yet been set, raises NotYetAvailableError.
   # returns the question of this round.
   def get_current_question
+    raise NotImplementedError
+  end
+
+  # returns true if a question is available for this round
+  # returns false otherwise
+  def question_available
+    raise NotImplementedError
+  end
+
+  # returns true if both answers are available for this round
+  # returns false otherwise
+  def answers_available
+    raise NotImplementedError
+  end
+
+  # returns a string that represents the history of this game
+  def get_whiteboard_string
+    raise NotImplementedError
+  end
+
+  # returns a symbol which indicates the type of the document
+  # e.g. :text
+  def document_type
+    raise NotImplementedError
+  end
+
+  # returns the content of the document
+  # what is return will depend on the type of the document
+  def document_content
     raise NotImplementedError
   end
 
@@ -112,4 +166,10 @@ class Game < ApplicationRecord
   def next_questioner
     raise NotImplementedError
   end
+end
+
+class RoleMismatchError < ArgumentError
+end
+
+class NoContentError < ArgumentError
 end

@@ -13,7 +13,7 @@
 ActiveRecord::Schema.define(version: 20170816155024) do
 
   create_table "documents", force: :cascade do |t|
-    t.integer "game_id"
+    t.string "doc_type"
     t.string "text"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -25,8 +25,10 @@ ActiveRecord::Schema.define(version: 20170816155024) do
     t.string "current_reader_answer"
     t.string "current_guesser_answer"
     t.string "current_judgement"
+    t.integer "document_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_games_on_document_id"
   end
 
   create_table "guessers", force: :cascade do |t|
@@ -48,6 +50,7 @@ ActiveRecord::Schema.define(version: 20170816155024) do
     t.integer "game_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["game_id"], name: "index_readers_on_game_id"
   end
 
   create_table "whiteboards", force: :cascade do |t|

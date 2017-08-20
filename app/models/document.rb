@@ -1,3 +1,4 @@
 class Document < ApplicationRecord
-  belongs_to :game
+  has_many :games
+  has_many :whiteboards
 end

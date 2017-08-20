@@ -6,5 +6,8 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-game = Game.create(current_questioner: "reader", current_question: "is the document about elephants?")
-game.reader = Reader.create
+Document.create(doc_type: "text",
+                text: "Some Orcas hunt Great Whites. They knock them out, suffacte them, and eat their livers.")
+Document.create(doc_type: "text",
+                text: "GLaDOS is a sentient computer. She promisses cake, but the cake is a lie.")
+
