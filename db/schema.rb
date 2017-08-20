@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170816155024) do
+ActiveRecord::Schema.define(version: 20170820180712) do
 
   create_table "documents", force: :cascade do |t|
     t.string "doc_type"
@@ -53,10 +53,21 @@ ActiveRecord::Schema.define(version: 20170816155024) do
     t.index ["game_id"], name: "index_readers_on_game_id"
   end
 
-  create_table "whiteboards", force: :cascade do |t|
-    t.integer "game_id"
+  create_table "users", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "password_digest"
+    t.string "remember_digest"
+  end
+
+  create_table "whiteboards", force: :cascade do |t|
+    t.integer "game_id"
+    t.integer "document_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_whiteboards_on_document_id"
   end
 
 end
