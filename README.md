@@ -20,4 +20,8 @@ Developed by team-red:
  * Initialice and generate RSpec files and directories
  * Initialice and generate Cucumber and Capybara files and directories including trainning-wheels
 
- * Pending: Define Entity-model and migrate DB --> Expect done  ap review version by sesaba23 on Wednesday 
+08/20/2017:
+ * Pending: Define Entity-model and migrate DB --> Expect done  app review version by sesaba23 on Wednesday 
+ * Added some gems to Gemfile
+ * First deployment to Heroku with "Hello word!"
+ * you can check in: http://iccg-team-red-preview.herokuapp.com/
