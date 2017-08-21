@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170816155024) do
+ActiveRecord::Schema.define(version: 20170821050332) do
 
   create_table "documents", force: :cascade do |t|
     t.string "doc_type"
@@ -24,7 +24,12 @@ ActiveRecord::Schema.define(version: 20170816155024) do
     t.string "current_questioner"
     t.string "current_reader_answer"
     t.string "current_guesser_answer"
-    t.string "current_judgement"
+    t.string "current_judged_suspicious"
+    t.string "state"
+    t.integer "coin_flip"
+    t.integer "guesser_score"
+    t.integer "reader_score"
+    t.integer "judge_score"
     t.integer "document_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -45,6 +50,18 @@ ActiveRecord::Schema.define(version: 20170816155024) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "lines", force: :cascade do |t|
+    t.string "questioner"
+    t.string "question"
+    t.string "reader_answer"
+    t.string "guesser_answer"
+    t.boolean "judgement_correct"
+    t.integer "whiteboard_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["whiteboard_id"], name: "index_lines_on_whiteboard_id"
+  end
+
   create_table "readers", force: :cascade do |t|
     t.integer "user_id"
     t.integer "game_id"
@@ -55,8 +72,10 @@ ActiveRecord::Schema.define(version: 20170816155024) do
 
   create_table "whiteboards", force: :cascade do |t|
     t.integer "game_id"
+    t.integer "document_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_whiteboards_on_document_id"
   end
 
 end
