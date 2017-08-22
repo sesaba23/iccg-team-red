@@ -25,3 +25,6 @@ Developed by team-red:
  * Added some gems to Gemfile
  * First deployment to Heroku with "Hello word!"
  * you can check in: http://iccg-team-red-preview.herokuapp.com/
+
+ 08/22/2017
+  * Sign-up and login funcionality works. Needs texts revision and some improvements
