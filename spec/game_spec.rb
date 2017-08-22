@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'byebug'
 
 describe Game do
   
@@ -50,7 +51,7 @@ describe Game do
     end
     it "should update answer" do
       @game.submit_answer(:guesser, "yes")
-      expect(@game.guesser_answer).to eq("yes")
+      expect(@game.current_guesser_answer).to eq("yes")
     end
   end
 
@@ -118,7 +119,7 @@ describe Game do
 
     it "should raise NotYetAvailableError if called before more_suspect_answer_is" do
       expect {@game.judged_suspicious}.
-        to raise_error(NotYetAvailable)
+        to raise_error(NotYetAvailableError)
     end
     it "should return the role of the author of the suspicious answer" do
       suspect_answer = nil
@@ -157,7 +158,7 @@ describe Game do
         to eq(false)
     end
     it "should return true if there is a question for this round" do
-      @game.submit_question("Is the text about whales?")
+      @game.submit_question(:reader, "Is the text about whales?")
       expect(@game.question_available).
         to eq(true)
     end
@@ -172,7 +173,7 @@ describe Game do
     end
 
     it "should return false if answers are pending" do
-      expect(@game.answers_available).to be_false
+      expect(@game.answers_available).to be_falsey
     end
     it "should return true if answer are available" do
       @game.submit_answer(:guesser, "yes")
@@ -181,13 +182,11 @@ describe Game do
   end
 
   describe "document_type" do
-    before do
+    it "should return the document type" do
       @game = Game.create(document_id: 1)
       @game.setup(1, 2, 3)
-    end
-
-    it "should return the document type" do
       document_types = [:text]
+      #byebug
       expect(document_types).to include(@game.document_type)
     end
   end
@@ -211,16 +210,16 @@ describe Game do
       @game.submit_answer(:reader, "a delicious dessert")
       @game.submit_answer(:guesser, "spaghetti")
       answers = @game.get_anonymized_answers
-      suspicious_answer = nil
-      answers.each {|key, value| suspicious_answer=key if value=="spaghetti"}
+      @suspicious_answer = nil
+      answers.each {|key, value| @suspicious_answer=key if value=="spaghetti"}
     end
 
-    it "should raise a NotYetAvailableError if called before round is complete" do
+    it "should raise NotYetAvailableError if called before round is complete" do
       expect {@game.next_round}.
         to raise_error(NotYetAvailableError)
     end
     before do
-      @game.more_suspect_answer_is(suspicious_answer)
+      @game.more_suspect_answer_is(@suspicious_answer)
       @scores = @game.next_round
     end
     it "should return the correct scores" do
@@ -243,13 +242,14 @@ describe Game do
         other = :guesser
       end
       @game.submit_question(questioner, "who eats the delicious dessert?")
-      @game.submit_answer(other, "no one")
-      @game.submit_answer(questioner, "a hungry person")
+      @game.submit_answer(:reader, "no one")
+      @game.submit_answer(:guesser, "a hungry person")
       answers = @game.get_anonymized_answers
       suspicious_answer = nil
       answers.each {|key, value| suspicious_answer=key if value=="a hungry person"}
       @game.more_suspect_answer_is(suspicious_answer)
       scores = @game.next_round
+      #byebug
       expect(scores[:reader]).to eq(2)
       expect(scores[:guesser]).to eq(0)
       expect(scores[:judge]).to eq(2)
