@@ -21,6 +21,8 @@ Rails.application.routes.draw do
   post '/login',   to: 'sessions#create'
   delete '/logout',  to: 'sessions#destroy'
 
+  get  '/waiting-players',   to: 'waiting_players#waiting'
+
   # Add automatically RESTFul actions to operate with Users
   resources :users
 

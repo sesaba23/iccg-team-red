@@ -28,3 +28,6 @@ Developed by team-red:
 
  08/22/2017
   * Sign-up and login funcionality works. Needs texts revision and some improvements
+
+  08/23/2017
+   * Added botton to start a new game (Also Added 'waiting' route, controller, view and test as an initial draft for sergiolha part)

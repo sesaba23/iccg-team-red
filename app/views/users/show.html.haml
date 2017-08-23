@@ -6,3 +6,8 @@
         = gravatar_for @user
         = @user.name
 
+.center.jumbotron
+  %h1 Click below to join a new Game
+  %h2
+  = link_to "Start Game now!", waiting_players_path, class: "btn btn-lg btn-primary"
+
