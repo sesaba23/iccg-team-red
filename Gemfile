@@ -38,6 +38,7 @@ gem 'jquery-rails', '4.3.1'
 # Use use haml for views and templates instead HTML
 gem 'haml'
 
+
 # Use of twitter's bootstrap framework to CSS styles
 gem 'bootstrap-sass', '3.3.7'
 
@@ -71,6 +72,8 @@ group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
+  # will allow us to make sample users with semi-realistic names and email addresses
+  gem 'faker',          '1.7.3'
 end
 
 group :production do
