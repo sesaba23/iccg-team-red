@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170821050332) do
+ActiveRecord::Schema.define(version: 20170825164349) do
 
   create_table "documents", force: :cascade do |t|
     t.string "doc_type"
@@ -77,6 +77,7 @@ ActiveRecord::Schema.define(version: 20170821050332) do
     t.datetime "updated_at", null: false
     t.string "password_digest"
     t.string "remember_digest"
+    t.boolean "admin", default: false
   end
 
   create_table "whiteboards", force: :cascade do |t|
