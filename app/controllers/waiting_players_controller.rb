@@ -14,7 +14,7 @@ class WaitingPlayersController < ApplicationController
   # Waits till three players are available for playing game
   def waiting
     if !current_user_waiting?
-      WaitingPlayer.create(user_id: current_user, active: true)
+      WaitingPlayer.create(user_id: current_user.id, active: true)
     end
     @game = game_setup
     redirect_to @game unless @game.nil?

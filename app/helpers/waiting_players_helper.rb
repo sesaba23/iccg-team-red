@@ -1,22 +1,22 @@
 module WaitingPlayersHelper
   def game_for_current_user
-    reader = Reader.where(user_id: current_user).joins(:game).where.not(games: {state: 'game_over'}).limit(1)
-    guesser = Guesser.where(user_id: current_user).joins(:game).where.not(games: {state: 'game_over'}).limit(1)
-    judge = Judge.where(user_id: current_user).joins(:game).where.not(games: {state: 'game_over'}).limit(1)
+    reader = Reader.where(user_id: current_user.id).joins(:game).where.not(games: {state: 'game_over'}).limit(1)
+    guesser = Guesser.where(user_id: current_user.id).joins(:game).where.not(games: {state: 'game_over'}).limit(1)
+    judge = Judge.where(user_id: current_user.id).joins(:game).where.not(games: {state: 'game_over'}).limit(1)
     game = reader[0] || guesser[0] || judge[0]
     @game = Game.find(game.game_id) unless game.nil?
   end
   
   def current_user_waiting?
-    user = WaitingPlayer.find_by(user_id: current_user, active: true)
+    user = WaitingPlayer.find_by(user_id: current_user.id, active: true)
     return false if user.nil?
-    user.user_id == current_user
+    user.user_id == current_user.id
   end
   
   def game_setup
-    queue = WaitingPlayer.where(active: true).where.not(user_id: current_user).limit(2)
+    queue = WaitingPlayer.where(active: true).where.not(user_id: current_user.id).limit(2)
     if queue.count >= 2
-      players = [current_user]
+      players = [current_user.id]
       queue.each {|x| players.push(x.user_id)}
       players.shuffle!
       players.each {|x| WaitingPlayer.find_by(user_id: x).update_attributes(active: false) }

@@ -14,3 +14,7 @@ Background: user is loggedin
   Scenario: Start New game
     When I follow "New Game"
     Then I should be on waiting player page
+  
+  Scenario: Go to waiting page if user exist in queue
+    Given the user "sesaba23" is waiting for players
+    Then I should be on waiting player page
