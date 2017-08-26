@@ -23,4 +23,6 @@ Background: user is loggedin
   Scenario: Go to game page if user is playing on a game
     Given the user "sesaba23" exist on a game
     And I am on the start new game page
+    And I am on waiting player page
+    And I am on the game page for "sesaba23"
     Then I should see "Game started"
