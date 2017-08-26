@@ -19,10 +19,11 @@ module WaitingPlayersHelper
       players = [current_user.id]
       queue.each {|x| players.push(x.user_id)}
       players.shuffle!
-      players.each {|x| WaitingPlayer.find_by(user_id: x).update_attributes(active: false) }
       document = get_free_document
       return nil if document.empty?
       @game = set_new_game(document.first, players)
+      players.each {|x| WaitingPlayer.find_by(user_id: x).update_attributes(active: false) } if @game
+      return @game
     else
       return nil
     end
