@@ -15,8 +15,8 @@ module NavigationHelpers
 
     when /^the home\s?page$/
       '/'
-    when /^the principal\s?page$/
-      '/principal'
+    when /^the start new game\s?page$/
+      '/start-new-game'
     when /^waiting player\s?page$/
       '/waiting-players'
 
