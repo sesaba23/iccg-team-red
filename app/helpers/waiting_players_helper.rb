@@ -34,7 +34,7 @@ module WaitingPlayersHelper
   end
   
   def set_new_game(document, players)
-    @game = Game.create(document_id: document)
+    @game = Game.create(document_id: document.id)
     @game.setup(players[0], players[1], players[2]) if @game
     return @game
   end

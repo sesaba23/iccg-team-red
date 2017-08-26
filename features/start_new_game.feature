@@ -12,10 +12,15 @@ Background: user is loggedin
   
   Scenario: Start New game
     Given I am on the start new game page
-    When I follow "New Game"
+    When I follow "Search Players"
     Then I should be on waiting player page
   
   Scenario: Go to waiting page if user exist in queue
     Given the user "sesaba23" is waiting for players
     And I am on the start new game page
     Then I should be on waiting player page
+  
+  Scenario: Go to game page if user is playing on a game
+    Given the user "sesaba23" exist on a game
+    And I am on the start new game page
+    Then I should see "Game started"
