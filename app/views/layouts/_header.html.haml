@@ -1,10 +1,16 @@
 %body
   %header.navbar.navbar-fixed-top.navbar-inverse
     .container
-      = link_to "First demo App", root_path, id: "logo"
+      -if !logged_in?
+        = link_to "First demo App", root_path, id: "logo"
+      -else
+        = link_to current_user.name, current_user, id: "logo"
       %nav
         %ul.nav.navbar-nav.navbar-right
-          %li= link_to "Home", root_path
+          - if !logged_in?
+            %li= link_to "Sign-up", root_path
+          -else
+            %li= link_to "New Game", current_user
           %li= link_to "Help", help_path
           - if logged_in?
             %li= link_to "Users", users_path
@@ -13,7 +19,6 @@
                 Account
                 %b.caret
               %ul.dropdown-menu
-                %li= link_to "Profile", current_user
                 %li= link_to "Settings", edit_user_path(current_user)
                 %li.divider
                 %li
