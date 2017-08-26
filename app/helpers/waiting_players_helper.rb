@@ -9,6 +9,7 @@ module WaitingPlayersHelper
   
   def current_user_waiting?
     user = WaitingPlayer.find_by(user_id: current_user, active: true)
+    return false if user.nil?
     user.user_id == current_user
   end
   

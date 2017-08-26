@@ -24,7 +24,12 @@ ActiveRecord::Schema.define(version: 20170826104806) do
     t.string "current_questioner"
     t.string "current_reader_answer"
     t.string "current_guesser_answer"
-    t.string "current_judgement"
+    t.string "current_judged_suspicious"
+    t.string "state"
+    t.integer "coin_flip"
+    t.integer "guesser_score"
+    t.integer "reader_score"
+    t.integer "judge_score"
     t.integer "document_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -84,8 +89,10 @@ ActiveRecord::Schema.define(version: 20170826104806) do
 
   create_table "whiteboards", force: :cascade do |t|
     t.integer "game_id"
+    t.integer "document_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_whiteboards_on_document_id"
   end
 
 end

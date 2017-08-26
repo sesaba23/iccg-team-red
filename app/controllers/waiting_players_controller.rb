@@ -1,3 +1,5 @@
+include WaitingPlayersHelper
+
 class WaitingPlayersController < ApplicationController
   before_action :logged_in_user, only: [:index, :waiting]
   
