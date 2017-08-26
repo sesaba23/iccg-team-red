@@ -15,6 +15,10 @@ module NavigationHelpers
 
     when /^the home\s?page$/
       '/'
+    when /^the principal\s?page$/
+      '/principal'
+    when /^waiting player\s?page$/
+      '/waiting-players'
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
