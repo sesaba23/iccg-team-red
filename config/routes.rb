@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   delete '/logout',  to: 'sessions#destroy'
 
   get  '/waiting-players',   to: 'waiting_players#waiting'
+  get '/start-new-game', to: 'waiting_players#index'
 
   # Add automatically RESTFul actions to operate with Users
   resources :users
