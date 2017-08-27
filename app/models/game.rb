@@ -71,6 +71,10 @@ class Game < ApplicationRecord
     self.guesser = Guesser.create(user_id: guesser_id)
     self.judge = Judge.create(user_id: judge_id)
     self.whiteboard = Whiteboard.create(document_id: self.document_id)
+
+    # You need to create a document in the model
+    self.document = Document.create(doc_type: "text", text: "I am the winner!")
+
     self.current_questioner = questioner
     self.reader_score = 0
     self.guesser_score = 0
