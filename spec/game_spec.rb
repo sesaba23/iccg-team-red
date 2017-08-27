@@ -2,10 +2,14 @@ require 'rails_helper'
 require 'byebug'
 
 describe Game do
+
+  before do
+    @document = Document.create(doc_type: "text", text: "I am the winner!")
+  end
   
   describe "submit_question" do
     before do
-      @game = Game.create(document_id: 1)
+      @game = Game.create(document_id: @document.id)
       @game.setup(1, 2, 3)
     end
     
