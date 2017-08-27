@@ -5,6 +5,7 @@ class GuessersController < ApplicationController
     if guesser.question_available?
       redirect_to answer_game_guesser_path and return
     else
+      @whiteboard = guesser.get_whiteboard_hashes
       render "waiting_for_question" and return
     end
   end

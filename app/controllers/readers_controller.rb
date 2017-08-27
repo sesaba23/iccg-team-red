@@ -1,5 +1,15 @@
 class ReadersController < ApplicationController
 
+  def waiting_for_question
+    reader = Reader.find_by_id(params[:id])
+    if reader.question_available?
+      redirect_to answer_game_guesser_path and return
+    else
+      @whiteboard = reader.get_whiteboard_hashes
+      render "waiting_for_question" and return
+    end
+  end
+  
   def ask
     reader = Reader.find_by_id(params[:id])
     if params[:question]
@@ -11,6 +21,8 @@ class ReadersController < ApplicationController
       end
       redirect_to answer_game_reader_path and return
     end
+    @story = reader.get_document_text
+    @whiteboard = reader.get_whiteboard_hashes
     render 'ask'
   end
 
