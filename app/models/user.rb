@@ -10,7 +10,7 @@ class User < ApplicationRecord
     # The only requirement for has_secure_password to work its magic is
     # for the corresponding model to have an attribute called password_digest
     has_secure_password
-    validates :password, presence: true, length: { minimum: 6 }
+    validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
 
     # Returns the hash digest of the given string.
     def User.digest(string)
