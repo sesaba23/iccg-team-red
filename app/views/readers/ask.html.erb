@@ -1,0 +1,12 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <h1> Reader </h1>
+    <p>Ask a question</p>
+    <%= form_tag(ask_game_reader_path, method: 'get') do%>
+    <%= text_field_tag :question %>
+    <%= submit_tag %>
+    <% end %>
+  </body>
+</html>

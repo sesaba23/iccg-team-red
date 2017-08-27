@@ -249,11 +249,10 @@ describe Game do
       answers.each {|key, value| suspicious_answer=key if value=="a hungry person"}
       @game.more_suspect_answer_is(suspicious_answer)
       scores = @game.next_round
-      #byebug
       expect(scores[:reader]).to eq(2)
       expect(scores[:guesser]).to eq(0)
       expect(scores[:judge]).to eq(2)
     end
   end
-    
+
 end

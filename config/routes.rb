@@ -5,7 +5,11 @@ Rails.application.routes.draw do
   resources :games
   resources :judges
   resources :guessers
-  resources :readers
+  resources :readers do
+    member do
+      get 'ask'
+    end
+  end
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   # Delete when neccessary. Just to check first deployment on Heroku
   # root 'application#hello'
@@ -28,7 +32,28 @@ Rails.application.routes.draw do
 
   get 'sessions/new'
   
+  resources :documents do
+    resources :games
+    resources :whiteboards
+  end
 
+  resources :games do
+    resources :readers do
+      member do
+        get 'ask'
+        get 'answer'
+        get 'waiting_for_question'
+      end
+    end
+    resources :guessers do
+      member do
+        get 'ask'
+        get 'answer'
+        get 'waiting_for_question'
+      end
+    end
+    resources :judges
+  end
   
 
 end

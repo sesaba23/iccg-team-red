@@ -1,0 +1,20 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <h1> Show all available documents here </h1>
+    <table>
+      <tr>
+        <th> id </th>
+        <th> content </th>
+      </tr>
+      <% @documents.each do |document| %>
+      <tr>
+        <td><%= document.id%></td>
+        <td><%= document.text%></td>
+        <td><%= link_to "play", new_game_path(doc_id: document.id), method: :get %>
+      </tr>
+      <% end %>
+    </table>
+  </body>
+</html>

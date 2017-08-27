@@ -76,7 +76,12 @@ class Game < ApplicationRecord
     self.guesser_score = 0
     self.judge_score = 0
     self.state = 'ask'
-    self.save
+    self.save!
+  end
+
+  # returns true if a new round just started
+  def new_round?
+    self.state == 'ask'
   end
 
   # role: must be :reader, :guesser or :judge.
@@ -94,7 +99,7 @@ class Game < ApplicationRecord
     if self.current_questioner.to_sym == role
       self.update(current_question: question)
       self.state = 'answer_any'
-      self.save
+      self.save!
     else
       raise RoleMismatchError
     end
@@ -215,6 +220,20 @@ class Game < ApplicationRecord
     return self.state != 'ask'
   end
 
+  # returns the current answer for this role
+  # role is :guesser or :reader
+  # DANGER: this will return whatever is currently saved
+  # does not need to have been submitted during this round
+  def get_answer(role)
+    if role == :reader
+      return self.current_reader_answer
+    elsif role == :guesser
+      return self.current_guesser_answer
+    else
+      raise ArgumentError
+    end
+  end
+
   # returns true if both answers are available for this round
   # returns false otherwise
   def answers_available
@@ -224,6 +243,12 @@ class Game < ApplicationRecord
   # returns a string that represents the history of this game
   def get_whiteboard_string
     self.whiteboard.board_string
+  end
+
+  # returns a list of hashes
+  # every hash represents a line on the whiteboard
+  def get_whiteboard_hashes
+    self.whiteboard.board_hashes
   end
 
   # returns a symbol which indicates the type of the document

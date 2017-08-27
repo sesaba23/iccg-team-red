@@ -1,5 +1,5 @@
 class Line < ApplicationRecord
-  belongs_to :document
+  belongs_to :whiteboard
 
   def line_string
     output = "Q: #{self.question} R: #{self.reader_answer} G: #{self.guesser_answer}"
