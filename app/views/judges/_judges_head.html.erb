@@ -1,3 +1,7 @@
+<%#% Makes page reload automatically so user doesn't need to refresh page manually %>
+<script type="text/javascript">
+  setTimeout(function(){ window.location.reload()}, 3000);
+</script>
 <h1> Judge </h1>
 <div style="float:left; width:50%;">
   <%= render partial: '/shared/whiteboard'%>
