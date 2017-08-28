@@ -34,7 +34,8 @@ class Guesser < ApplicationRecord
   # if guesser's answer is available,
   # returns a sring containing the guesser's answer
   def get_guessers_answer
-    self.game.get_answer(:guesser)
+    self.game.get_answer(:guesser) unless
+      (['ask', 'answer_any', 'answer_guesser'].include? self.game.state)
   end
 
   # if reader's and guesser's answers are available,

@@ -45,7 +45,8 @@ class Reader < ApplicationRecord
   # if reader's answer is available,
   # returns a string containing the reader's answer
   def get_readers_answer
-    self.game.get_answer(:reader)
+    self.game.get_answer(:reader) unless
+      (['ask', 'answer_any', 'answer_reader'].include? self.game.state)
   end
 
   # returns an array of hashes. Each hash represents a line

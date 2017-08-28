@@ -7,7 +7,7 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 Document.create(doc_type: "text",
-                text: "Some Orcas hunt Great Whites. They knock them out, suffacte them, and eat their livers.")
+                text: "Some Orcas hunt Great Whites. They knock them out, suffocte them, and eat their livers.")
 Document.create(doc_type: "text",
                 text: "GLaDOS is a sentient computer. She promisses cake, but the cake is a lie.")
 
