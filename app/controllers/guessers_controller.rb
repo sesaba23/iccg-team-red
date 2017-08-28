@@ -46,6 +46,7 @@ class GuessersController < ApplicationController
         redirect_to review_game_guesser_path and return
       rescue NoContentError
         flash[:alert] = "You have to answer something!"
+        redirect_to answer_game_reader_path and return
       end
     else
       @answer_path = answer_game_guesser_path
@@ -55,6 +56,9 @@ class GuessersController < ApplicationController
 
   def review
     guesser = Guesser.find_by_id(params[:id])
+    unless guesser.get_guessers_answer
+      redirect_to waiting_for_question_game_guesser_path and return
+    end
     if guesser.new_round? and guesser.is_questioner?
       redirect_to ask_game_guesser_path and return
     elsif guesser.new_round? and !guesser.is_questioner?

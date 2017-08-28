@@ -52,6 +52,7 @@ class ReadersController < ApplicationController
         redirect_to review_game_reader_path and return
       rescue NoContentError
         flash[:alert] = "You have to answer something!"
+        redirect_to answer_game_reader_path and return
       end
     else
       @answer_path = answer_game_reader_path
@@ -61,6 +62,9 @@ class ReadersController < ApplicationController
 
   def review
     reader = Reader.find_by_id(params[:id])
+    unless reader.get_readers_answer
+      redirect_to waiting_for_question_game_reader_path and return
+    end
     if reader.new_round? and reader.is_questioner?
       redirect_to ask_game_reader_path and return
     elsif reader.new_round? and !reader.is_questioner?
