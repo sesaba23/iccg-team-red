@@ -53,6 +53,8 @@ group :development, :test do
   # Use sqlite3 as the database for Active Record
   # Heroku does not support sqlite3
   gem 'sqlite3', '1.3.13'
+
+  gem 'factory_girl_rails'
 end
 
 group :test do

@@ -2,10 +2,17 @@ require 'rails_helper'
 require 'byebug'
 
 describe Game do
+
+  before do
+    # 'build' creates but doesn't save objest; 'create' also saves it
+    @document1 = FactoryGirl.create(:document)
+    @document2 = FactoryGirl.create(:document, :id => 2, :doc_type => 'text',
+        :text => 'GLaDOS is a sentient computer. She promisses cake, but the cake is a lie.')
+  end
   
   describe "submit_question" do
     before do
-      @game = Game.create(document_id: 1)
+      @game = Game.create(document_id: @document1.id)
       @game.setup(1, 2, 3)
     end
     
@@ -30,7 +37,7 @@ describe Game do
 
   describe "submit_answer" do
     before do
-      @game = Game.create(document_id: 2)
+      @game = Game.create(document_id: @document2.id)
       @game.setup(1, 2, 3)
       @game.submit_question(:reader, "is there any cake?")
     end
@@ -57,7 +64,7 @@ describe Game do
 
   describe "get_anonymized_answers" do
     before do
-      @game = Game.create(document_id: 2)
+      @game = Game.create(document_id: @document2.id)
       @game.setup(1, 2, 3)
       @game.submit_question(:reader, "is there any cake?")
       @game.submit_answer(:reader, "the cake is a lie")
@@ -82,7 +89,7 @@ describe Game do
 
   describe "more_suspect_answer_is" do
     before do
-      @game = Game.create(document_id: 1)
+      @game = Game.create(document_id: @document1.id)
       @game.setup(1, 2, 3)
       @game.submit_question(:reader, "Who eats Great Whites?")
       @game.submit_answer(:guesser, "humans")
@@ -109,7 +116,7 @@ describe Game do
 
   describe "judged_suspicious" do
     before do
-      @game = Game.create(document_id: 1)
+      @game = Game.create(document_id: @document1.id)
       @game.setup(1, 2, 3)
       @game.submit_question(:reader, "Who eats Great Whites?")
       @game.submit_answer(:guesser, "humans")
@@ -132,7 +139,7 @@ describe Game do
 
   describe "get_current_question" do
     before do
-      @game = Game.create(document_id: 1)
+      @game = Game.create(document_id: @document1.id)
       @game.setup(1, 2, 3)
     end
     
@@ -149,7 +156,7 @@ describe Game do
 
   describe "question_available" do
     before do
-      @game = Game.create(document_id: 1)
+      @game = Game.create(document_id: @document1.id)
       @game.setup(1, 2, 3)
     end
 
@@ -166,7 +173,7 @@ describe Game do
 
   describe "answers_available" do
     before do
-      @game = Game.create(document_id: 1)
+      @game = Game.create(document_id: @document1.id)
       @game.setup(1, 2, 3)
       @game.submit_question(:reader, "is the text about dolphins?")
       @game.submit_answer(:reader, "yes")
@@ -183,7 +190,7 @@ describe Game do
 
   describe "document_type" do
     it "should return the document type" do
-      @game = Game.create(document_id: 1)
+      @game = Game.create(document_id: @document1.id)
       @game.setup(1, 2, 3)
       document_types = [:text]
       #byebug
@@ -204,7 +211,7 @@ describe Game do
 
   describe "next_round" do
     before do
-      @game = Game.create(document_id: 2)
+      @game = Game.create(document_id: @document2.id)
       @game.setup(1, 2, 3)
       @game.submit_question(:reader, "What food is mentioned?")
       @game.submit_answer(:reader, "a delicious dessert")
