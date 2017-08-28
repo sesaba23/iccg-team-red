@@ -1,0 +1,25 @@
+<h2> Question: </h2>
+<center>
+  <%= "'#{@question}'" %>
+</center>
+
+<div style="float:left; width:50%;">
+  <center>
+    <h3> Reader's answer </h3>
+    <% if @readers_answer %>
+    <%= @readers_answer %>
+    <% else %>
+    <%= "...waiting..." %>
+    <% end %>
+  </center>
+</div>
+<div style="float:left; width:50%;">
+  <center>
+    <h3> Guesser's answer </h3>
+    <% if @guessers_answer %>
+    <%= @guessers_answer %>
+    <% else %>
+    <%= "...waiting..." %>
+    <% end %>
+  </center>
+</div>

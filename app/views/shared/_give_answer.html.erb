@@ -1,0 +1,10 @@
+<div>
+  <center>
+    <h2> Question: </h2>
+    <%= "'#{@question}'" %>
+    <%= form_tag(@answer_path, method: 'get') do%>
+    <%= text_field_tag :answer%>
+    <%= submit_tag value='answer' %>
+    <% end %>
+  </center>
+</div>

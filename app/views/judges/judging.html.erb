@@ -1,0 +1,14 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <%= render partial: 'judges_head' %>
+    <%= render partial: '/shared/show_question' %>
+    <center>
+      <h2>Answers</h2>
+      Select the more suspicious answer!
+      <%= button_to "#{@answer1}", judging_game_judge_path , :method=>:get, :params => {:judgement => :answer1}  %>
+      <%= button_to "#{@answer2}", judging_game_judge_path , :method=>:get, :params => {:judgement => :answer2}  %>
+    </center>
+  </body>
+</html>

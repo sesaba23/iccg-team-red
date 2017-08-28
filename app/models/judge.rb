@@ -22,6 +22,11 @@ class Judge < ApplicationRecord
     self.game.get_anonymized_answers
   end
 
+  def more_suspect_is(answer)
+    self.game.more_suspect_answer_is(answer)
+    self.game.next_round
+  end
+
   # labels get_answers[:answer1] as the suspicious answer
   def first_answer_suspicious
     self.game.more_suspect_answer_is(:answer1)

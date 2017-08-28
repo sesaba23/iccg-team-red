@@ -4,11 +4,7 @@
   <body>
     <%= render partial: 'readers_head' %>
     <div>
-    <h2>Ask a question</h2>
-    <%= form_tag(ask_game_reader_path, method: 'get') do%>
-    <%= text_field_tag :question %>
-    <%= submit_tag value='ask question' %>
-    <% end %>
+    <%= render partial: '/shared/ask_question' %>
     </div>
   </body>
 </html>

@@ -23,6 +23,11 @@ class Reader < ApplicationRecord
     self.game.answers_available
   end
 
+  # returns a symbol representing the game's state
+  def game_state
+    self.game.get_state
+  end
+
 ##################### get interaction content ####################
 
   # if a question is available for this round,
@@ -34,7 +39,7 @@ class Reader < ApplicationRecord
   # if guesser's answer is available,
   # returns a sring containing the guesser's answer
   def get_guessers_answer
-    self.game.get_answer(:guesser) if self.answers_available
+    self.game.get_answer(:guesser) if self.answers_available?
   end
 
   # if reader's answer is available,

@@ -44,6 +44,7 @@ Rails.application.routes.draw do
         get 'ask'
         get 'answer'
         get 'waiting_for_question'
+        get 'review'
       end
     end
     resources :guessers do
@@ -51,9 +52,16 @@ Rails.application.routes.draw do
         get 'ask'
         get 'answer'
         get 'waiting_for_question'
+        get 'review'
       end
     end
-    resources :judges
+    resources :judges do
+      member do
+        get 'waiting_for_question'
+        get 'waiting_for_answers'
+        get 'judging'
+      end
+    end
   end
   
 

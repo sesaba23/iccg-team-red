@@ -37,10 +37,10 @@ class Guesser < ApplicationRecord
     self.game.get_answer(:guesser)
   end
 
-  # if reader's answer is available,
+  # if reader's and guesser's answers are available,
   # returns a string containing the reader's answer
   def get_readers_answer
-    self.game.get_answer(:reader) if self.answers_available
+    self.game.get_answer(:reader) if self.answers_available?
   end
 
   # returns an array of hashes. Each hash represents a line

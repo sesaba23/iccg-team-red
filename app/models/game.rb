@@ -99,7 +99,7 @@ class Game < ApplicationRecord
     if self.current_questioner.to_sym == role
       self.update(current_question: question)
       self.state = 'answer_any'
-      self.save!
+      self.save
     else
       raise RoleMismatchError
     end
@@ -158,7 +158,8 @@ class Game < ApplicationRecord
   # and the two answers as values. Which answer is assigned
   # which key should be random.
   def get_anonymized_answers
-    raise NotYetAvailableError unless self.state == 'anonymize'
+    raise NotYetAvailableError unless
+      (self.state == 'anonymize' or self.state =='judge')
     # store coin flip result to be able to decode later
     self.coin_flip = rand(2)
     answers = Hash.new
@@ -220,18 +221,24 @@ class Game < ApplicationRecord
     return self.state != 'ask'
   end
 
-  # returns the current answer for this role
+  # returns the answer for this role for this round or false if
+  # there is no answer for this role yet
   # role is :guesser or :reader
-  # DANGER: this will return whatever is currently saved
-  # does not need to have been submitted during this round
   def get_answer(role)
     if role == :reader
-      return self.current_reader_answer
+      return self.current_reader_answer if
+        !(['ask', 'answer_any', 'answer_reader'].include? self.state)
     elsif role == :guesser
-      return self.current_guesser_answer
+      return self.current_guesser_answer if
+        !(['ask', 'answer_any', 'answer_guesser'].include? self.state)
     else
       raise ArgumentError
     end
+    return false
+  end
+
+  def get_state
+    return self.state.to_sym
   end
 
   # returns true if both answers are available for this round
