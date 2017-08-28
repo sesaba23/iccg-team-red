@@ -1,23 +1,25 @@
 <h2> Whiteboard </h2>
-<table>
-  <tr>
-    <th> Question </th>
-    <th> Reader's answer </th>
-    <th> Guesser's answer </th>
-    <th> Guesser identified </th>
-  </tr>
-  <% @whiteboard.each do |line| %>
-  <tr>
-    <td><%= line[:question] %></td>
-    <td><%= line[:reader_answer] %></td>
-    <td><%= line[:guesser_answer] %></td>
-    <td>
-      <% if line[:guesser_marked]%>
-      Yes
-      <% else %>
-      No
+<table class="table table-striped table-bordered table-responsive">
+  <thead>
+    <tr>
+      <th> Question </th>
+      <th> Reader's answer </th>
+      <th> Guesser's answer </th>
+      <th> Guesser identified </th>
+    </tr>
+  </thead>
+    <% @whiteboard.each do |line| %>
+    <tr>
+      <td><%= line[:question] %></td>
+      <td><%= line[:reader_answer] %></td>
+      <td><%= line[:guesser_answer] %></td>
+      <td>
+        <% if line[:guesser_marked]%>
+        Yes
+        <% else %>
+        No
+        <% end %>
+      </td>
       <% end %>
-    </td>
-    <% end %>
-  </tr>
+    </tr>
 </table>

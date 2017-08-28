@@ -4,7 +4,7 @@ require 'byebug'
 describe Game do
 
   before do
-    # 'build' creates but doesn't save objest; 'create' also saves it
+    # 'build' creates but doesn't save object; 'create' also saves it
     @document1 = FactoryGirl.create(:document)
     @document2 = FactoryGirl.create(:document, :id => 2, :doc_type => 'text',
         :text => 'GLaDOS is a sentient computer. She promisses cake, but the cake is a lie.')
