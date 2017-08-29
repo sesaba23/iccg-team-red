@@ -206,6 +206,15 @@ input {
     padding: 10px 0;
     border-bottom: 1px solid $gray-lighter;
   }
+
+  /* Two elements in a row*/
+  .container{ width: 100%;}
+  .element-left {
+    float: left; width: 50%;
+  }
+  .element-right {
+    float: right; width: 50%;
+  }
 }
 
 
