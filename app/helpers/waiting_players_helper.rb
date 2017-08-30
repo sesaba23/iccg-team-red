@@ -31,6 +31,7 @@ module WaitingPlayersHelper
   
   def get_free_document
     document = Document.left_outer_joins(:games).where(games: {document_id: nil}).limit(1)
+    return document
   end
   
   def set_new_game(document, players)
