@@ -28,6 +28,10 @@ module WaitingPlayersHelper
       return nil
     end
   end
+
+  def select_player_to_play
+    WaitingPlayer.where(active: true).where.not(user_id: current_user.id).first.user_id
+  end
   
   def get_free_document
     document = Document.left_outer_joins(:games).where(games: {document_id: nil}).limit(1)

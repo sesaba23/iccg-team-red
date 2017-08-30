@@ -5,8 +5,11 @@ class WaitingPlayersController < ApplicationController
   
   def index
     @game = game_for_current_user
-    redirect_to @game if @game
-    redirect_to waiting_players_path if current_user_waiting?
+    if @game 
+      redirect_to_play_game
+    else
+      redirect_to waiting_players_path if current_user_waiting?
+    end
     @title = 'New Game'
     @url = waiting_players_path
   end
@@ -17,10 +20,32 @@ class WaitingPlayersController < ApplicationController
       WaitingPlayer.create(user_id: current_user.id, active: true)
     end
     @game = game_setup
-    redirect_to @game unless @game.nil?
+    
+    if !@game.nil?
+      redirect_to_play_game
+    end
   end
   
-  private
+  def redirect_to_play_game
+    if session[:next_player].nil?
+      session[:next_player] = 'reader'
+    end
+
+    if session[:next_player] == 'reader'
+      redirect_to  waiting_for_question_game_reader_path(1, 1)
+      session[:next_player] = 'guesser'
+      return
+    elsif session[:next_player] == 'guesser'
+      redirect_to  waiting_for_question_game_guesser_path(1, 1)
+      session[:next_player] = 'judge'
+      return
+    elsif
+      redirect_to  waiting_for_question_game_judge_path(1, 1)
+      session[:next_player] = 'reader'
+    end
+  end
+
+    private
     def logged_in_user
       unless logged_in?
         store_location
