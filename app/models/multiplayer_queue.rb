@@ -1,9 +1,12 @@
+require 'byebug'
+
 class MultiplayerQueue < ApplicationRecord
   has_many :queued_players
 
   def enqueue_player(user_id)
     self.queued_players.push(QueuedPlayer.create(user_id: user_id)) unless
       self.queued_players.find_by_user_id(user_id)
+    self.save
   end
 
   def enough_players_waiting
@@ -42,7 +45,7 @@ class MultiplayerQueue < ApplicationRecord
 
   def player_processed
     self.players_processed += 1
-    self.save
+    self.save!
   end
 
   def game_processed

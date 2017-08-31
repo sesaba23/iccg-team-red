@@ -1,7 +1,8 @@
 class MultiplayerQueuesController < ApplicationController
 
   def enqueue
-    MultiplayerQueue.create unless MultiplayerQueue.first
+    raise StandardError if MultiplayerQueue.all.size>1
+    MultiplayerQueue.create unless MultiplayerQueue.all.size>0
     @queue = MultiplayerQueue.first
     @user = session[:user_id]
     
@@ -14,7 +15,6 @@ class MultiplayerQueuesController < ApplicationController
   def wait
     @queue = MultiplayerQueue.first
     @user = session[:user_id]
-
     if @queue.selected_for_game(@user)
       redirect_to join_multiplayer_queue_path
     end
@@ -28,18 +28,21 @@ class MultiplayerQueuesController < ApplicationController
     game = @queue.if_not_already_done_create_game
 
     if @user == game.reader.user_id
-      redirect_to waiting_for_question_game_reader_path(game.id, game.reader.id)
+      @queue.player_processed
+      @queue.mark_game_started if @queue.game_processed
+      redirect_to waiting_for_question_game_reader_path(game.id, game.reader.id) and return
     elsif @user == game.guesser.user_id
-      redirect_to waiting_for_question_game_guesser_path(game.id, game.guesser.id)
+      @queue.player_processed
+      @queue.mark_game_started if @queue.game_processed
+      redirect_to waiting_for_question_game_guesser_path(game.id, game.guesser.id) and return
     elsif @user == game.judge.user_id
-      redirect_to waiting_for_question_game_judge_path(game.id, game.judge.id)
+      @queue.player_processed
+      @queue.mark_game_started if @queue.game_processed
+      redirect_to waiting_for_question_game_judge_path(game.id, game.judge.id) and return
     else
       raise StandardError
     end
-
-    @queue.player_processed
-    @queue.mark_game_started if @queue.game_processed
-    
+   
   end
   
 end
