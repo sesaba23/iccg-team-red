@@ -24,7 +24,7 @@ Document.create(doc_type: "text",
       password = "password"
       User.create!(name:  name,
                    email: email,
-                   password:              foobar,
-                   password_confirmation: foobar,
+                   password:              "foobar",
+                   password_confirmation: "foobar",
                    admin: false)
  end
