@@ -26,6 +26,14 @@ class MultiplayerQueue < ApplicationRecord
     return players
   end
 
+  def if_not_already_done_start_game
+    return if self.started
+    doc_id = Document.all.map {|d| d.id}.sample
+    game = Game.create(document_id: doc_id)
+    game.setup(self.player1, self.player2, self.player3)
+    self.started = true
+  end
+
   def selected_for_game(usr_id)
     usr_id == self.player1 or usr_id == self.player2 or usr_id == self.player3
   end

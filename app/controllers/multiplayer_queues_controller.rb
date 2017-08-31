@@ -25,9 +25,7 @@ class MultiplayerQueuesController < ApplicationController
     @user = session[:user_id]
     @selected = [@queue.player1, @queue.player2, @queue.player3]
 
-    doc_id = Document.all.map {|d| d.id}.sample
-    game = Game.create(document_id: doc_id)
-    game.setup(@queue.player1, @queue.player2, @queue.player3)
+    @queue.if_not_already_done_start_game
 
     if @user == game.reader.user_id
       redirect_to waiting_for_question_game_reader_path(game.id, game.reader.id) and return

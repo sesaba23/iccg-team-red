@@ -4,6 +4,7 @@ class CreateMultiplayerQueues < ActiveRecord::Migration[5.1]
       t.integer :player1
       t.integer :player2
       t.integer :player3
+      t.boolean :started
       
       t.timestamps
     end
