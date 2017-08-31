@@ -31,19 +31,20 @@ User.create!(name:  "Sam",
 
 
 # # Create fake user for development porposes
-# User.create!(name:  "sesaba23",
-#             email: "sesaba23@gmail.com",
-#             password:              "foobar",
-#             password_confirmation: "foobar",
-#             admin: true)
+ User.create!(name:  "sesaba23",
+             email: "sesaba23@gmail.com",
+             password:              "foobar",
+             password_confirmation: "foobar",
+             admin: true)
    
-# 99.times do |n|
-#      name  = Faker::Name.name
-#      email = "example-#{n+1}@railstutorial.org"
-#      password = "password"
-#      User.create!(name:  name,
-#                   email: email,
-#                   password:              password,
-#                   password_confirmation: password,
-#                   admin: false)
-# end
+ 3.times do |n|
+      #name  = Faker::Name.name
+      name = "user-#{n+1}"
+      email = "user-#{n+1}@team-red.org"
+      password = "password"
+      User.create!(name:  name,
+                   email: email,
+                   password:              "foobar",
+                   password_confirmation: "foobar",
+                   admin: false)
+ end
