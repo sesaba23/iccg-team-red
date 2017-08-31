@@ -51,6 +51,7 @@ class MultiplayerQueue < ApplicationRecord
 
   def mark_game_started
     self.created = false
+    self.players_processed = 0
     self.save
   end
 
