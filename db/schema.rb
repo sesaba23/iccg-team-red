@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170826104806) do
+ActiveRecord::Schema.define(version: 20170831093329) do
 
   create_table "documents", force: :cascade do |t|
     t.string "doc_type"
@@ -60,6 +60,22 @@ ActiveRecord::Schema.define(version: 20170826104806) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["whiteboard_id"], name: "index_lines_on_whiteboard_id"
+  end
+
+  create_table "multiplayer_queues", force: :cascade do |t|
+    t.integer "player1"
+    t.integer "player2"
+    t.integer "player3"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "queued_players", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "multiplayer_queue_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["multiplayer_queue_id"], name: "index_queued_players_on_multiplayer_queue_id"
   end
 
   create_table "readers", force: :cascade do |t|

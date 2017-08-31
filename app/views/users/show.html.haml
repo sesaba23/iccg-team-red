@@ -9,5 +9,5 @@
 .center.jumbotron
   %h1 Click below to join a new Game
   %h2
-  = link_to "Start Game now!", start_new_game_path, class: "btn btn-lg btn-primary"
+  = link_to "Start Game now!", enqueue_multiplayer_queue_path(1), class: "btn btn-lg btn-primary"
 

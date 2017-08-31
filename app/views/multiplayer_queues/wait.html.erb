@@ -1,0 +1,9 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <h1> waiting for players ... </h1>
+    <%= "redirected from #{@user}" %>
+    <%= "players queued #{@queue.queued_players.map{|p| p.user_id}}" %>
+  </body>
+</html>

@@ -1,0 +1,2 @@
+class QueuedPlayer < ApplicationRecord
+end

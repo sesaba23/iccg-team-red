@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :queued_players
+  resources :multiplayer_queues
   resources :lines
   resources :documents
   resources :whiteboards
@@ -36,6 +38,14 @@ Rails.application.routes.draw do
   resources :documents do
     resources :games
     resources :whiteboards
+  end
+
+  resources :multiplayer_queues do
+    member do
+      get 'enqueue'
+      get 'wait'
+      get 'join'
+    end
   end
 
   resources :games do

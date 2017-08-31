@@ -1,0 +1,2 @@
+class QueuedPlayersController < ApplicationController
+end

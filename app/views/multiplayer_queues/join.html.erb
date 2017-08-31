@@ -1,0 +1,10 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <h1> join game now </h1>
+    <%= "redirected from #{@user}" %>
+    <%= "players queued #{@queue.queued_players.map{|p| p.user_id}}" %>
+    <%= "selected to play: #{@selected}" %>
+  </body>
+</html>
