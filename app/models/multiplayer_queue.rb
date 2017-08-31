@@ -12,6 +12,9 @@ class MultiplayerQueue < ApplicationRecord
 
   def get_and_dequeue_game_players
     raise StandardError unless self.queued_players.size > 2
+
+    self.players_processed = 0
+    
     usr_id1 = self.queued_players.first.user_id
     self.queued_players.destroy(QueuedPlayer.find_by_user_id(usr_id1))
     usr_id2 = self.queued_players.first.user_id
@@ -26,12 +29,29 @@ class MultiplayerQueue < ApplicationRecord
     return players
   end
 
-  def if_not_already_done_start_game
-    return if self.started
+  def if_not_already_done_create_game
+    return Game.find_by_id(self.game_id) if self.created
     doc_id = Document.all.map {|d| d.id}.sample
     game = Game.create(document_id: doc_id)
     game.setup(self.player1, self.player2, self.player3)
-    self.started = true
+    self.created = true
+    self.game_id = game.id
+    self.save
+    return game
+  end
+
+  def player_processed
+    self.players_processed += 1
+    self.save
+  end
+
+  def game_processed
+    self.players_processed == 3
+  end
+
+  def mark_game_started
+    self.created = false
+    self.save
   end
 
   def selected_for_game(usr_id)

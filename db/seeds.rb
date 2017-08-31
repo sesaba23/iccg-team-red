@@ -11,6 +11,25 @@ Document.create(doc_type: "text",
 Document.create(doc_type: "text",
                 text: "GLaDOS is a sentient computer. She promisses cake, but the cake is a lie.")
 
+User.create!(name:  "Kirill",
+            email: "kirmesh@gmail.com",
+            password:              "super_pw",
+            password_confirmation: "super_pw",
+            admin: true)
+
+User.create!(name:  "CoolOrcaGuy",
+            email: "orcinus@orca.ocean",
+            password:              "super_pw",
+            password_confirmation: "super_pw",
+            admin: true)
+
+User.create!(name:  "Sam",
+            email: "sam@sg1.gov",
+            password:              "super_pw",
+            password_confirmation: "super_pw",
+            admin: true)
+
+
 # # Create fake user for development porposes
 # User.create!(name:  "sesaba23",
 #             email: "sesaba23@gmail.com",

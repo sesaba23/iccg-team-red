@@ -66,6 +66,9 @@ ActiveRecord::Schema.define(version: 20170831093329) do
     t.integer "player1"
     t.integer "player2"
     t.integer "player3"
+    t.boolean "created"
+    t.integer "players_processed"
+    t.integer "game_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

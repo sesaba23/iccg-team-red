@@ -25,17 +25,20 @@ class MultiplayerQueuesController < ApplicationController
     @user = session[:user_id]
     @selected = [@queue.player1, @queue.player2, @queue.player3]
 
-    @queue.if_not_already_done_start_game
+    game = @queue.if_not_already_done_create_game
 
     if @user == game.reader.user_id
-      redirect_to waiting_for_question_game_reader_path(game.id, game.reader.id) and return
+      redirect_to waiting_for_question_game_reader_path(game.id, game.reader.id)
     elsif @user == game.guesser.user_id
-      redirect_to waiting_for_question_game_guesser_path(game.id, game.guesser.id) and return
+      redirect_to waiting_for_question_game_guesser_path(game.id, game.guesser.id)
     elsif @user == game.judge.user_id
-      redirect_to waiting_for_question_game_judge_path(game.id, game.judge.id) and return
+      redirect_to waiting_for_question_game_judge_path(game.id, game.judge.id)
     else
       raise StandardError
     end
+
+    @queue.player_processed
+    @queue.mark_game_started if @queue.game_processed
     
   end
   
