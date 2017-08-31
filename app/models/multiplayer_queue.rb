@@ -1,5 +1,3 @@
-require 'byebug'
-
 class MultiplayerQueue < ApplicationRecord
   has_many :queued_players
 
