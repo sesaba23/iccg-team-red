@@ -19,7 +19,8 @@ Document.create(doc_type: "text",
              admin: true)
    
  3.times do |n|
-      name  = Faker::Name.name
+      #name  = Faker::Name.name
+      name = "user-#{n+1}"
       email = "user-#{n+1}@team-red.org"
       password = "password"
       User.create!(name:  name,
