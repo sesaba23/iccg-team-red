@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     resources :whiteboards
   end
 
+  #  Add additional routes to the seven routes created by resources
   resources :multiplayer_queues do
     member do
       get 'enqueue'

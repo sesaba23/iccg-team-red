@@ -1,11 +1,14 @@
 class MultiplayerQueue < ApplicationRecord
   has_many :queued_players
 
+  # Only add player to queue if it is not in it
   def enqueue_player(user_id)
-    self.queued_players.push(QueuedPlayer.create(user_id: user_id)) unless
-      self.queued_players.find_by_user_id(user_id)
-    self.save
+    if !self.queued_players.find_by_user_id(user_id)
+      self.queued_players.push(QueuedPlayer.create(user_id: user_id)) 
+      self.save
+    end
   end
+      
 
   def enough_players_waiting
     self.queued_players.size > 2
@@ -18,8 +21,10 @@ class MultiplayerQueue < ApplicationRecord
     
     usr_id1 = self.queued_players.first.user_id
     self.queued_players.destroy(QueuedPlayer.find_by_user_id(usr_id1))
+    self.save
     usr_id2 = self.queued_players.first.user_id
     self.queued_players.destroy(QueuedPlayer.find_by_user_id(usr_id2))
+    self.save
     usr_id3 = self.queued_players.first.user_id
     self.queued_players.destroy(QueuedPlayer.find_by_user_id(usr_id3))
     players = [usr_id1, usr_id2, usr_id3]
@@ -28,6 +33,13 @@ class MultiplayerQueue < ApplicationRecord
     self.player3 = usr_id3
     self.save
     return players
+  end
+
+  def deleted_selected_for_game_players
+    self.player1 = ""
+    self.player2 = ""
+    self.player3 = ""
+    self.save
   end
 
   def if_not_already_done_create_game
@@ -53,12 +65,15 @@ class MultiplayerQueue < ApplicationRecord
   def mark_game_started
     self.created = false
     self.players_processed = 0
+    self.player1 = ""
+    self.player2 = ""
+    self.player3 = ""
     self.save
   end
 
   def selected_for_game(usr_id)
     usr_id == self.player1 or usr_id == self.player2 or usr_id == self.player3
   end
-    
-  
-end
+
+end    
+

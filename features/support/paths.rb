@@ -16,9 +16,9 @@ module NavigationHelpers
     when /^the home\s?page$/
       '/'
     when /^the start new game\s?page$/
-      '/start-new-game'
+      '/users/1'
     when /^waiting player\s?page$/
-      '/waiting-players'
+      '/multiplayer_queues/1/wait'
     when /^the game page for "(.*)"$/
       '/games/1'
 

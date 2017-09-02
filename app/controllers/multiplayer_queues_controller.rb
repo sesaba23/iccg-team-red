@@ -25,7 +25,7 @@ class MultiplayerQueuesController < ApplicationController
     @user = session[:user_id]
     @selected = [@queue.player1, @queue.player2, @queue.player3]
 
-    game = @queue.if_not_already_done_create_game
+    game = @queue.if_not_already_done_create_game 
 
     if @user == game.reader.user_id
       @queue.player_processed
@@ -42,6 +42,7 @@ class MultiplayerQueuesController < ApplicationController
     else
       raise StandardError
     end
+
    
   end
   
