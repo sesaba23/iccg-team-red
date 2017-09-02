@@ -46,6 +46,7 @@ Rails.application.routes.draw do
       get 'enqueue'
       get 'wait'
       get 'join'
+      get 'quit'
     end
   end
 

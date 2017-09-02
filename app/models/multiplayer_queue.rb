@@ -8,7 +8,13 @@ class MultiplayerQueue < ApplicationRecord
       self.save
     end
   end
-      
+
+  def delete_user_from_queue(user_id)
+    if self.queued_players.find_by_user_id(user_id)
+      self.queued_players.destroy(QueuedPlayer.find_by_user_id(user_id))
+      self.save
+    end
+  end
 
   def enough_players_waiting
     self.queued_players.size > 2

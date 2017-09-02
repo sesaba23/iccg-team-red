@@ -32,3 +32,11 @@ end
 When(/^I am the only player in the queue$/) do
   get '/multiplayer_queues/1/enqueue'
 end 
+
+When /^(?:|I )follow "([^"]*)"$/ do |link|
+  current_path = URI.parse(current_url).path
+  if current_path.eql? '/multiplayer_queues/1/enqueue'
+    get '/multiplayer_queues/1/quit'
+  end
+  click_link(link)
+end

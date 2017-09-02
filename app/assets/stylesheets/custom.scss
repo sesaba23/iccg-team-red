@@ -218,5 +218,29 @@ input {
 }
 
 
+#contain {
+  /* background-color:#3b3b40;*/
+  height:100%;/* no need  */
+  margin:0;
+  padding:0;
+  text-align:center;
+}
+#left {
+  float: left; width:49%;
+  padding:0;
+  margin:0;
+  min-width:350px;   
+  vertical-align:bottom;
+}
+#right {
+  float: right; width:49%;
+  min-width:350px;
+  /*display:inline-block;*/
+  padding:40px;
+  /*-moz-box-sizing:border-box;*/
+  /*box-sizing:border-box;*/
+}
+
+
 
 
