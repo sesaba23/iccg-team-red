@@ -1,5 +1,6 @@
-<h2>Ask a question</h2>
+<p><b>Ask a question:</b></p>
 <%= form_tag(@ask_path, method: 'get') do%>
 <%= text_field_tag :question %>
-<%= submit_tag value='ask question' %>
+<%= button_tag value='Ask question', :class => "btn btn-info center-block"%>
 <% end %>
+    

@@ -217,6 +217,24 @@ input {
   }
 }
 
+/* Collapse Buttons and scroll in documents*/
+button.btn.collapsed:before
+{
+    content:'Show document' ;
+    display:block;
+    width: 120px
+}
+.collapse-button.btn:before
+{
+    content:'Hide document' ;
+    display:block;
+    width: 120px
+}
+.document-scroll{
+  height: 150px;
+  overflow-y: scroll;
+}
+
 
 #contain {
   /* background-color:#3b3b40;*/

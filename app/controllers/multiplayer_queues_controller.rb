@@ -44,7 +44,7 @@ class MultiplayerQueuesController < ApplicationController
     end
   end
 
-   # User can quit while he es waiting for users to play
+   # User can quit while he is waiting for users to play
    def quit
     @user = session[:user_id]
     @queue = MultiplayerQueue.first
