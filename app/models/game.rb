@@ -2,8 +2,8 @@
 # =================
 # 
 # The game:
-# A game has three players: guesser, reader and judge.
-# It also has one document which is available to reader and judge.
+# A game has three roles: guesser, reader and judge. In every game there is one of each.
+# It also has one document (e.g. a news article) which is available to reader and judge.
 # During each round of the game, reader or guesser get to ask a question
 # about the content of the document. Both reader and guesser answer that
 # question. Reader and guesser both try to convince the judge that they
@@ -11,7 +11,7 @@
 # question. The judge's goal is to determine which answer was given by the
 # guesser.
 #
-# Transfer of information to guesser:
+# As the game goes on information is transferred to the guesser:
 # All previous rounds (questions & answers) are stored on the whiteboard.
 # The whiteboard is visible to all players. The guesser learns about the
 # contents of the document by reading the whiteboard.
@@ -25,29 +25,31 @@
 # The Game class
 # ==============
 #
-# This class represents the game and provides methods for manipulating the game
-# and viewing information about its state.
+# This is an implemention of an abstract datatype for the game described above.
 
 class Game < ApplicationRecord
 
   # Representation:
   # ===============
   # The game is represented by
-  # * a state machine with 8 states:
+  # * 8 states:
   #   ask, answer_any, answer_reader, answer_guesser, anonymize, judge,
   #   score, game_over (for state diagram see TODO: upload a picture)
-  # * [current_question, current_questioner, reader_answer,
-  #   guesser_answer, current_judged_suspicious] fields
-  #   - these are repopulated during each round.
-  # The states determine which of the fields are up-to-date
-  # in the current round.
-
-  # the three users of the game class
+  # * the strings current_question, current_questioner, reader_answer,
+  #   guesser_answer, current_judged_suspicious
+  # * coin_flip, an integer that is either 0 or 1. It encodes the order in which
+  #   the two answers are returned. (The order is randomly generated
+  #   each round to prevent determining the author from the order.)
+  # * three integeres that accumulate the points that each role has earned.
+  # * a reference to the document which is used in the game.
+  # * a reference to a whiteboard which is a record of all previous rounds
+  # * references to three objects that represent the three roles. They contain
+  #   the ids of the users who play in each respective role. The game does not
+  #   use these ids, but provides access to them from the outside.
+  
   has_one :reader
   has_one :guesser
-  has_one :judge
-  ###################################
-  
+  has_one :judge 
   belongs_to :document
   has_one :whiteboard
 
@@ -55,6 +57,10 @@ class Game < ApplicationRecord
               'anonymize', 'judge' ,'score', 'game_over']
   @@roles = [:reader, :guesser, :judge]
 
+
+  ########################################
+  ### DEPRECATED ###
+  
   # a game should be created in the following way:
   #
   # game = Game.create(document_id) or
@@ -82,19 +88,183 @@ class Game < ApplicationRecord
     self.state = 'ask'
     self.save!
   end
+  ########################################
+  
+  #################### CREATORS ####################
+  
+  # Create a game object and all dependencies.
+  # - param document: object of type Document (app/models/document.rb), is the document
+  #         the game is played with.
+  # - param xxx_user_id: optional integer value identifying the user who plays in
+  #         role xxx
+  # - returns: a new game object that is added to document.games.
+  def self.setup(document, reader_user_id=0, guesser_user_id=0, judge_user_id=0)
+    # TODO: implement
+  end
 
-  # returns true if a new round just started
+  #################### OBSERVERS ####################
+
+  # Ask if a new round just started.
+  # - returns: a boolean indicating whether a new round has started,
+  #            but no actions have yet been taken
   def new_round?
     self.state == 'ask'
   end
 
-  # role: must be :reader, :guesser or :judge.
-  # question: a string
-  # if role is not the current questioner, raises RoleMismatchError.
-  # if question is an empty string, raises NoContentError.
-  # if a question has alread been successfully submitted during this
-  # round, raises MultipleSubmissionsError.
-  # otherwise makes question this round's question.
+  # Ask if reader or guesser asks the question during the current round.
+  # - param role:  must be :reader or :guesser
+  # - returns: true if role is asks the question during this round.
+  def is_questioner(role)
+    raise ArgumentError, "must be :reader or :guesser" unless
+      role == :reader or role == :guesser
+    return role == self.current_questioner.to_sym
+  end
+
+  # Get this round's answers in random order. During a particular round the order
+  # remains the same.
+  # - raises: NotYetAvailableError if both answers are not yet available for this round
+  # - returns a hash with keys :answer1 and :answer2 with the two answers as values
+  def get_anonymized_answers
+    raise NotYetAvailableError unless
+      (self.state == 'anonymize' or self.state =='judge')
+    # store coin flip result to be able to decode later
+    self.coin_flip = rand(2)
+    answers = Hash.new
+    # hide identity
+    if self.coin_flip == 0
+      answers[:answer1] = self.current_reader_answer
+      answers[:answer2] = self.current_guesser_answer
+    else
+      answers[:answer1] = self.current_guesser_answer
+      answers[:answer2] = self.current_reader_answer
+    end
+    self.state = 'judge'
+    self.save
+    return answers
+  end
+
+  # Ask who's answer was deemed more suspicious during this round.
+  # - raises: NotYetAvailableError if a judgement has not yet been submitted this round.
+  # - returns: the role (:reader or :guesser) of the author of the answer which was
+  #            judged more suspicious.
+  def judged_suspicious
+    raise NotYetAvailableError unless self.state == 'score'
+    return self.current_judged_suspicious.to_sym
+  end
+
+  # Ask if the guesser has been identified in this round.
+  # - raises: NotYetAvailableError if a judgement has not yet been submitted for
+  #           this round
+  # - returns: a boolean indicating whether the guesser has been identified.
+  def guesser_identified
+    # TODO: implement
+  end
+
+  # Get the question for this round.
+  # - raises: NotYetAvailableError if no question is yet available for this round. 
+  # - returns: the question for this round.
+  def get_current_question
+    raise NotYetAvailableError if self.state == 'ask'
+    return self.current_question
+  end
+
+  # Ask if a question is already available for this round.
+  # - returns a boolean indicating whether a question is already available.
+  def question_available
+    return self.state != 'ask'
+  end
+
+  # Get an answer that has been submitted during this round.
+  # - param role: Indicates who submitted the answer. Must be :guesser or :reader.
+  # - raises: NotYetAvailableError if role has not yet submitted an answer during
+  #           this round.
+  # - returns: the answer role submitted during this round.
+  def get_answer(role)
+    if role == :reader
+      return self.current_reader_answer if
+        !(['ask', 'answer_any', 'answer_reader'].include? self.state)
+    elsif role == :guesser
+      return self.current_guesser_answer if
+        !(['ask', 'answer_any', 'answer_guesser'].include? self.state)
+    else
+      raise ArgumentError
+    end
+    return false
+  end
+
+  # Ask if an answer is already available for this round.
+  # - param role: Indicates the role who's answers is of interest.
+  #         Must be :reader or :guesser.
+  # - returns: a boolean indicating whether an answer is available for this round.
+  def answer_available(role)
+    #TODO: implement
+  end
+
+  # Ask if both answers are already available for this round.
+  # - returns: a boolean indicating whether both answers are already available.
+  def answers_available
+    return @@states[4,7].include? self.state
+  end
+
+  # Get the total score for each player.
+  # - returns: a hash with keys :reader, :guesser and :judge
+  #            and integer values representing their respective scores.
+  def get_scores
+    # TODO: implement
+  end
+
+  # TODO: specify
+  def required_action
+    # TODO: implement
+  end
+
+  # Get the content of the whiteboard.
+  # - returns: an array of hashes, where every hash represents one round of the game.
+  #            Each hash has keys:
+  #            * questioner: either "reader" or "guesser"
+  #            * question: string containing the question
+  #            * reader_answer: string containing reader answer
+  #            * guesser_answer: string containing guesser answer
+  #            * guesser_marked: true if judge identified guesser correctly
+  #            * timestamp: string containing the time when the line was created
+  def get_whiteboard_hashes
+    self.whiteboard.board_hashes
+  end
+
+  # Get the type of the document for this game.
+  # - returns: a symbol indicating the type of the document.
+  #            The following types exist:
+  #            * :text
+  #            * :link
+  #            * :embedded_youtube
+  def get_document_type
+    self.document.get_document_type
+  end
+
+  # Get the contents of the document.
+  # - returns: depends on type of document
+  #            * text: text as a string
+  #            * link: url as a string
+  #            * embedded_youtube: url for (embedded) youtube video
+  def document_content
+    # TODO: implement
+  end
+
+  # Ask whether the game has concluded.
+  # - returns a boolean indicating if the game has concluded.
+  def is_game_over
+    # TODO: implement
+  end
+
+  #################### MUTATORS ####################
+
+  # Submit a question to the game.
+  # - param role: symbol that indicates who is submitting the question
+  #         must be :reader or :guesser
+  # - param question: a nonempty string that represents the question
+  # - raises: RoleMismatchError if role is not the current questioner
+  #           NoContentError if question is an empty string
+  #           NotYetAvailableError if no question should be submitted at this point
   def submit_question(role, question)
     unless self.state == 'ask'
       raise MultipleSubmissionsError
@@ -109,23 +279,12 @@ class Game < ApplicationRecord
     end
   end
 
-  # role is :reader or :guesser
-  # return true if role is the current questioner
-  # return false otherwise
-  def is_questioner(role)
-    raise ArgumentError, "must be :reader or :guesser" unless
-      role == :reader or role == :guesser
-    return role == self.current_questioner.to_sym
-  end
-
-  # role: must be :reader, :guesser or :judge.
-  # answer: a string
-  # if role is :judge raises RoleMismatchError.
-  # if answer is an empty string raises NoContentError.
-  # if answer has already been submitted by this role during
-  # this round raises MultipleSubmissionsError.
-  # if called out of order, raises NotYetAvailableError
-  # otherwise makes answer this round's answer of this role.
+  # Submit an answer to the game.
+  # - param role: indicates who is submitting the answer
+  #         must be :reader or :guesser
+  # - param answer: a nonempty string that represents the answer
+  # - raises: NotYetAvailableError if no answer is expected form role
+  #           NoContentError if answer is an empty string
   def submit_answer(role, answer)
     raise ArgumentError unless @@roles.include? role
     raise RoleMismatchError if role==:judge
@@ -155,39 +314,12 @@ class Game < ApplicationRecord
       end
     end
     self.save
-  end
+  end  
 
-  # if called out of order raises NotYetAvailableError.
-  # returns a hash with keys :answer1 and :answer2
-  # and the two answers as values. Which answer is assigned
-  # which key should be random.
-  def get_anonymized_answers
-    raise NotYetAvailableError unless
-      (self.state == 'anonymize' or self.state =='judge')
-    # store coin flip result to be able to decode later
-    self.coin_flip = rand(2)
-    answers = Hash.new
-    # hide identity
-    if self.coin_flip == 0
-      answers[:answer1] = self.current_reader_answer
-      answers[:answer2] = self.current_guesser_answer
-    else
-      answers[:answer1] = self.current_guesser_answer
-      answers[:answer2] = self.current_reader_answer
-    end
-    self.state = 'judge'
-    self.save
-    return answers
-  end
-
-  # answer_key: must be :answer1 or :answer2, which are
-  # keys of the hash returned by get_anonymized_answers during this
-  # round.
-  # answer_key is the key of the question which has been identified
-  # as most suspect.
-  # if answer_key is not :answer1 or :answer2 raises ArgumentError.
-  # if called before get_anonymized_answers, raises NotYetAvailableError.
-  # otherwise submits a judgement.
+  # Submit which answer is deemed more suspicious.
+  # - param answer_key: Indicates which answer is more suspicious. Must be a key of
+  #         the hash returned by get_anonymized_answers.
+  # - raises: NotYetAvailableError if both answers are not yet available for this round.
   def more_suspect_answer_is(answer_key)
     raise ArgumentError unless [:answer1, :answer2].include? answer_key
     raise NotYetAvailableError unless self.state == 'judge'
@@ -204,75 +336,23 @@ class Game < ApplicationRecord
     self.save
   end
 
-  # if called before more_suspicious_answer_is, raises NotYetAvailableError
-  # otherwise returns the role (symbol) of the author of the answer which was judged
-  # more suspicious.
-  def judged_suspicious
-    raise NotYetAvailableError unless self.state == 'score'
-    return self.current_judged_suspicious.to_sym
+  # Marks the game as concluded. When a game is over it can no longer be
+  # changed.
+  def over
+    next_round
+    self.state = 'game_over'
+    self.save
   end
 
-  # if no question has yet been set, raises NotYetAvailableError.
-  # returns the question of this round.
-  def get_current_question
-    raise NotYetAvailableError if self.state == 'ask'
-    return self.current_question
-  end
+  #################### PRIVATE ####################
 
-  # returns true if a question is available for this round
-  # returns false otherwise
-  def question_available
-    return self.state != 'ask'
-  end
+  private
 
-  # returns the answer for this role for this round or false if
-  # there is no answer for this role yet
-  # role is :guesser or :reader
-  def get_answer(role)
-    if role == :reader
-      return self.current_reader_answer if
-        !(['ask', 'answer_any', 'answer_reader'].include? self.state)
-    elsif role == :guesser
-      return self.current_guesser_answer if
-        !(['ask', 'answer_any', 'answer_guesser'].include? self.state)
-    else
-      raise ArgumentError
-    end
-    return false
-  end
-
-  def get_state
-    return self.state.to_sym
-  end
-
-  # returns true if both answers are available for this round
-  # returns false otherwise
-  def answers_available
-    return @@states[4,7].include? self.state
-  end
-
-  # returns a string that represents the history of this game
-  def get_whiteboard_string
-    self.whiteboard.board_string
-  end
-
-  # returns a list of hashes
-  # every hash represents a line on the whiteboard
-  def get_whiteboard_hashes
-    self.whiteboard.board_hashes
-  end
-
-  # returns a symbol which indicates the type of the document
-  # e.g. :text
-  def document_type
-    self.document.get_document_type
-  end
-
-  # returns the content of the document
-  # what is return will depend on the type of the document
-  def document_content
-    return self.document.content if self.document_type == :text
-    raise ArgumentError, "unknown document type"
+  # Generate a random order for the answers in this round.
+  # - raises: NotYetAvailableError if both answers have not yet been given this round
+  #           NotYetAvailableError if answers have already been anonymized this round
+  def anonymize_answers
+    # TODO: implement
   end
 
   # unless the current round has accepted a question, answers from reader
@@ -299,20 +379,10 @@ class Game < ApplicationRecord
     return scores
   end
 
-  # ends the game
-  def over
-    next_round
-    self.state = 'game_over'
-    self.save
-  end
-
-  private
-
   # returns array of new scores hash
   # with key value pairs like reader: integer (score value)
   # updates scores in table
   def update_scores
-    #byebug
     raise NotYetAvailableError unless self.state == 'score'
     if current_judged_suspicious == 'guesser'
       self.judge_score += 1
@@ -331,19 +401,12 @@ class Game < ApplicationRecord
   def get_next_questioner
     ['reader', 'guesser'][rand(2)] # random questioner
   end
-
-  def is_game_over
-    raise NotImplementedError
-  end
 end
 
 class RoleMismatchError < ArgumentError
 end
 
 class NoContentError < ArgumentError
-end
-
-class MultipleSubmissionsError < ArgumentError
 end
 
 class NotYetAvailableError < ArgumentError
