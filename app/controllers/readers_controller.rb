@@ -2,6 +2,7 @@ class ReadersController < ApplicationController
   
   def waiting_for_question
     reader = Reader.find_by_id(params[:id])
+    @story = reader.get_document_text
     if reader.is_questioner?
       redirect_to ask_game_reader_path and return
     elsif reader.question_available?

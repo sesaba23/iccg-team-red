@@ -1,24 +1,11 @@
+
 <h1> Reader </h1>
-<div class="container">
-  <div>
-    <button class="collapse-button btn btn-info center-block" data-toggle="collapse" data-target="#show"></a>
+<div>
+  <div class="contain-part">
+    <%= render partial: '/shared/document' %>   
   </div>
-  <div class="row-fluid summary">
-    <div id="show" class="collapse in">
-      <%= render partial: '/shared/document' %>
-    </div>
-  </div>
-</div>
-    <%= render partial: '/shared/whiteboard'%>
-
-
-<!--
-<div id="contain">
-  <p id="right">
-    <%= render partial: '/shared/document' %>
-    </p>
-  <div id="left">
+  <div class="contain-part">
     <%= render partial: '/shared/whiteboard'%>
   </div>
 </div>
--->
+

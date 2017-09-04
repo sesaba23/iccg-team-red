@@ -1,8 +1,14 @@
 <html>
   <head>
+    <%#% Makes page reload automatically so user doesn't need to refresh page manually %>
+    <script type="text/javascript">
+      setTimeout(function(){ window.location.reload()}, 3000);
+    </script>
   </head>
-  <body>
-   <%= render partial: 'readers_head' %>
-   <%= render partial: '/shared/waiting_for_question' %>
+  <body >
+    <%= render partial: 'readers_head' %>
+    <div class="contain-part">
+       <%= render partial: '/shared/waiting_for_question' %>
+    </div>
   </body>
 </html>

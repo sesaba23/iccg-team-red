@@ -231,18 +231,42 @@ button.btn.collapsed:before
     width: 120px
 }
 .document-scroll{
-  height: 150px;
+  height: 100px;
   overflow-y: scroll;
+  display: block;
 }
 
 
-#contain {
+table{
+  display:block;      
+  }
+tbody{
+  display:block;
+  overflow-y:scroll; 
+  height:200px;    
+ }th{
+  width:5%;    
+ }td{
+  width:5%;    
+ }
+
+/* Game schema layout*/
+.contain {
   /* background-color:#3b3b40;*/
   height:100%;/* no need  */
   margin:0;
   padding:0;
   text-align:center;
 }
+.contain-part {
+  max-height: 33%;
+  margin: 1% 1%;
+}
+.small-contain-part {
+  height: 10%;
+  margin: 1% 1%;
+}
+
 #left {
   float: left; width:49%;
   padding:0;
