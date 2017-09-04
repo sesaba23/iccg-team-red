@@ -103,7 +103,7 @@ class Game < ApplicationRecord
   end
 
   #################### OBSERVERS ####################
-
+  
   # Ask if a new round just started.
   # - returns: a boolean indicating whether a new round has started,
   #            but no actions have yet been taken
@@ -213,7 +213,9 @@ class Game < ApplicationRecord
     # TODO: implement
   end
 
-  # TODO: specify
+  # Get the next action that is required.
+  # - returns: a symbol indicating the actor (:reader, :guesser, :judge)
+  #            and a string describing the action.
   def required_action
     # TODO: implement
   end
@@ -245,7 +247,7 @@ class Game < ApplicationRecord
   # - returns: depends on type of document
   #            * text: text as a string
   #            * link: url as a string
-  #            * embedded_youtube: url for (embedded) youtube video
+  #            * embedded_youtube: url for (embedded) youtube video as a string
   def document_content
     # TODO: implement
   end

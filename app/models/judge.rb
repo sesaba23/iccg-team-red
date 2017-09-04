@@ -1,26 +1,81 @@
 class Judge < ApplicationRecord
   belongs_to :game
 
-  # returns true if a questions is available for this round
+  #################### OBSERVERS ####################
+  
+  # Ask if a question is already available for this round.
+  # - returns a boolean indicating whether a question is already available.
   def question_available?
     self.game.question_available
   end
-
-  # if a question is available for this round,
-  # returns a string containing the question for this round
+  
+  # Get the question for this round.
+  # - raises: NotYetAvailableError if no question is yet available for this round. 
+  # - returns: the question for this round.
   def get_question
     self.game.get_current_question
   end
 
-  # returns true if both answers are available in this round
+  # Ask if both answers are already available for this round.
+  # - returns: a boolean indicating whether both answers are already available.
   def answers_available?
     self.game.answers_available
   end
 
-  # returns a hash with two answers
+  # Get this round's answers in random order. During a particular round the order
+  # remains the same.
+  # - raises: NotYetAvailableError if both answers are not yet available for this round
+  # - returns a hash with keys :answer1 and :answer2 with the two answers as values
   def get_answers
     self.game.get_anonymized_answers
   end
+
+  # Get the total score for each player.
+  # - returns: a hash with keys :reader, :guesser and :judge
+  #            and integer values representing their respective scores.
+  def get_scores
+    # TODO: implement
+  end
+
+  # Get the content of the whiteboard.
+  # - returns: an array of hashes, where every hash represents one round of the game.
+  #            Each hash has keys:
+  #            * questioner: either "reader" or "guesser"
+  #            * question: string containing the question
+  #            * reader_answer: string containing reader answer
+  #            * guesser_answer: string containing guesser answer
+  #            * guesser_marked: true if judge identified guesser correctly
+  #            * timestamp: string containing the time when the line was created
+  def get_whiteboard_hashes
+    self.game.get_whiteboard_hashes
+  end
+
+  # Get the type of the document in this game.
+  # - returns: a symbol indicating the type of the document.
+  #            The following types exist:
+  #            * :text
+  #            * :link
+  #            * :embedded_youtube
+  def get_document_type
+    self.game.get_document_type
+  end
+  
+  # Get the textual contents of the document.
+  # - returns: depends on type of document
+  #            * text: text as a string
+  #            * link: url as a string
+  #            * embedded_youtube: url for (embedded) youtube video as a string
+  def get_document_text
+    self.game.document_content
+  end
+
+  # Ask whether the game has concluded.
+  # - returns a boolean indicating if the game has concluded.
+  def is_game_over
+    # TODO: implement
+  end
+
+  #################### MUTATORS ####################
 
   def more_suspect_is(answer)
     self.game.more_suspect_answer_is(answer)
@@ -37,23 +92,5 @@ class Judge < ApplicationRecord
   def second_answer_suspicious
     self.game.more_suspect_answer_is(:answer2)
     self.game.next_round
-  end
-
-  # returns an array of hashes. Each hash represents a line
-  # on the whiteboard.
-  # questioner: either "reader" or "guesser"
-  # question: string containing the question
-  # reader_answer: string containing reader answer
-  # guesser_answer: string containing guesser answer
-  # guesser_marked: true if judge identified guesser correctly
-  # timestamp: string containing time when the line was created
-  def get_whiteboard_hashes
-    self.game.get_whiteboard_hashes
-  end
-
-  # if the document is a text document,
-  # returns a string containing the document's text
-  def get_document_text
-    self.game.document_content
   end
 end

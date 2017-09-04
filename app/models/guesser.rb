@@ -1,79 +1,96 @@
 class Guesser < ApplicationRecord
   belongs_to :game
   
-  ################### get info about game state ####################
+  ################### OBSERVERS  ####################
   
-  # returns true if, during this round, this guesser is the questioner
+  # Ask whether this guesser asks the question during this round.
+  # - returns: a boolean indicating whether the reader is the questioner.
   def is_questioner?
     self.game.is_questioner(:guesser)
   end
 
-  # returns true if a new round just started
+  # Ask if a new round just started.
+  # - returns: a boolean indicating whether a new round has started,
+  #            but no actions have yet been taken
   def new_round?
     self.game.new_round?
   end
 
-  # returns true if a questions is available for this round
+  # Ask if a question is already available for this round.
+  # - returns a boolean indicating whether a question is already available.
   def question_available?
     self.game.question_available
   end
 
-  # returns true if both answers are available in this round
+  # Ask if both answers are already available for this round.
+  # - returns: a boolean indicating whether both answers are already available.
   def answers_available?
     self.game.answers_available
   end
 
-##################### get interaction content ####################
-
-  # if a question is available for this round,
-  # returns a string containing the question for this round
+  # Get the question for this round.
+  # - raises: NotYetAvailableError if no question is yet available for this round. 
+  # - returns: the question for this round.
   def get_question
     self.game.get_current_question
   end
 
-  # if guesser's answer is available,
-  # returns a sring containing the guesser's answer
+  # Attempts to get the guesser's answer.
+  # - returns: a string containing the guesser's answer or nil if the reader has not
+  #            yet submitted an answer during this round.
   def get_guessers_answer
     self.game.get_answer(:guesser) unless
       (['ask', 'answer_any', 'answer_guesser'].include? self.game.state)
   end
 
-  # if reader's and guesser's answers are available,
-  # returns a string containing the reader's answer
+  # Attempts to get the readers's answer. Only succeeds if reader and guesser already
+  # submitted their answers during this round.
+  # - returns: a string containing the reader's answer or nil
   def get_readers_answer
     self.game.get_answer(:reader) if self.answers_available?
   end
 
-  # returns an array of hashes. Each hash represents a line
-  # on the whiteboard.
-  # questioner: either "reader" or "guesser"
-  # question: string containing the question
-  # reader_answer: string containing reader answer
-  # guesser_answer: string containing guesser answer
-  # guesser_marked: true if judge identified guesser correctly
-  # timestamp: string containing time when the line was created
+  # Get the total score for each player.
+  # - returns: a hash with keys :reader, :guesser and :judge
+  #            and integer values representing their respective scores.
+  def get_scores
+    # TODO: implement
+  end
+
+  # Get the content of the whiteboard.
+  # - returns: an array of hashes, where every hash represents one round of the game.
+  #            Each hash has keys:
+  #            * questioner: either "reader" or "guesser"
+  #            * question: string containing the question
+  #            * reader_answer: string containing reader answer
+  #            * guesser_answer: string containing guesser answer
+  #            * guesser_marked: true if judge identified guesser correctly
+  #            * timestamp: string containing the time when the line was created
   def get_whiteboard_hashes
     self.game.get_whiteboard_hashes
   end
 
-  # if the document is a text document,
-  # returns a string containing the document's text
-  def get_document_text
-    self.game.document_content
+  # Ask whether the game has concluded.
+  # - returns a boolean indicating if the game has concluded.
+  def is_game_over
+    # TODO: implement
   end
 
-############################# submit #############################
+  #################### MUTATORS ####################
   
-  # if it's the guessers turn to submit a question,
-  # submits a question to the game
-  # question:  a nonempty string
+  # Submit a question to the game.
+  # - param question: a nonempty string that represents the question
+  # - raises: RoleMismatchError if guesser is not the current questioner
+  #           NoContentError if question is an empty string
+  #           NotYetAvailableError if no question should be submitted at this point
   def submit_question(question)
     self.game.submit_question(:guesser, question)
   end
 
-  # if it's the guessers turn to submit an answer,
-  # submits an answer to the game
-  # answer: a nonempty string containing the answer
+  # Submit an answer to the game.
+  # - param answer: a nonempty string that represents the answer
+  # - raises: NotYetAvailableError if no answer is expected at this point
+  #           NoContentError if answer is an empty string
   def submit_answer(answer)
     self.game.submit_answer(:guesser, answer)
   end
