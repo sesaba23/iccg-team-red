@@ -217,6 +217,72 @@ input {
   }
 }
 
+/* Collapse Buttons and scroll in documents*/
+button.btn.collapsed:before
+{
+    content:'Show document' ;
+    display:block;
+    width: 120px
+}
+.collapse-button.btn:before
+{
+    content:'Hide document' ;
+    display:block;
+    width: 120px
+}
+.document-scroll{
+  height: 100px;
+  overflow-y: scroll;
+  display: block;
+}
+
+
+table{
+  display:block;      
+  }
+tbody{
+  display:block;
+  overflow-y:scroll; 
+  height:200px;    
+ }th{
+  width:5%;    
+ }td{
+  width:5%;    
+ }
+
+/* Game schema layout*/
+.contain {
+  /* background-color:#3b3b40;*/
+  height:100%;/* no need  */
+  margin:0;
+  padding:0;
+  text-align:center;
+}
+.contain-part {
+  max-height: 33%;
+  margin: 1% 1%;
+}
+.small-contain-part {
+  height: 10%;
+  margin: 1% 1%;
+}
+
+#left {
+  float: left; width:49%;
+  padding:0;
+  margin:0;
+  min-width:350px;   
+  vertical-align:bottom;
+}
+#right {
+  float: right; width:49%;
+  min-width:350px;
+  /*display:inline-block;*/
+  padding:40px;
+  /*-moz-box-sizing:border-box;*/
+  /*box-sizing:border-box;*/
+}
+
 
 
 

@@ -42,8 +42,17 @@ class MultiplayerQueuesController < ApplicationController
     else
       raise StandardError
     end
-
-   
   end
+
+   # User can quit while he is waiting for users to play
+   def quit
+    @user = session[:user_id]
+    @queue = MultiplayerQueue.first
+
+    @queue.delete_user_from_queue(@user) unless @user.nil?
+
+    redirect_to user_path(@user) unless @user.nil?
+   end
+       
   
 end
