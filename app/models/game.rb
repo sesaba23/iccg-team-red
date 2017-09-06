@@ -1,5 +1,3 @@
-require 'byebug'
-
 # The Abstract Game
 # =================
 # 

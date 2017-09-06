@@ -32,7 +32,7 @@ class Reader < ApplicationRecord
   # - raises: NotYetAvailableError if no question is yet available for this round. 
   # - returns: the question for this round.
   def get_question
-    self.game.get_current_question
+    self.game.get_question
   end
 
   # Attempts to get the guesser's answer. Only succeeds if reader and guesser already
@@ -54,7 +54,7 @@ class Reader < ApplicationRecord
   # - returns: a hash with keys :reader, :guesser and :judge
   #            and integer values representing their respective scores.
   def get_scores
-    # TODO: implement
+    self.game.get_scores
   end
 
   # Get the content of the whiteboard.
@@ -92,7 +92,7 @@ class Reader < ApplicationRecord
   # Ask whether the game has concluded.
   # - returns a boolean indicating if the game has concluded.
   def is_game_over
-    # TODO: implement
+    self.game.is_over
   end
 
   #################### MUTATORS ####################
