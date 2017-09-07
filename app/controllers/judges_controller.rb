@@ -26,7 +26,11 @@ class JudgesController < ApplicationController
     end
     if params[:judgement]
       judge.more_suspect_is(params[:judgement].to_sym)
-      redirect_to waiting_for_question_game_judge_path and return
+      if judge.is_game_over
+        redirect_to game_over_game_path(judge.game) and return
+      else
+        redirect_to waiting_for_question_game_judge_path and return
+      end
     end
     @whiteboard = judge.get_whiteboard_hashes
     @story = judge.get_document_text

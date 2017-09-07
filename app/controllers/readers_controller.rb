@@ -70,6 +70,8 @@ class ReadersController < ApplicationController
       redirect_to ask_game_reader_path and return
     elsif reader.new_round? and !reader.is_questioner?
       redirect_to waiting_for_question_game_reader_path and return
+    elsif reader.is_game_over
+      redirect_to game_over_game_path(reader.game) and return
     else
       @story = reader.get_document_text
       @whiteboard = reader.get_whiteboard_hashes

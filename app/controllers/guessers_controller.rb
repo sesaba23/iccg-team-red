@@ -63,6 +63,8 @@ class GuessersController < ApplicationController
       redirect_to ask_game_guesser_path and return
     elsif guesser.new_round? and !guesser.is_questioner?
       redirect_to waiting_for_question_game_guesser_path and return
+    elsif guesser.is_game_over
+      redirect_to game_over_game_path(guesser.game) and return
     else
       @whiteboard = guesser.get_whiteboard_hashes
       @question = guesser.get_question

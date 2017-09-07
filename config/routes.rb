@@ -51,6 +51,9 @@ Rails.application.routes.draw do
   end
 
   resources :games do
+    member do
+      get 'game_over'
+    end
     resources :readers do
       member do
         get 'ask'
