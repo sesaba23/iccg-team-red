@@ -51,8 +51,8 @@ class MultiplayerQueue < ApplicationRecord
   def if_not_already_done_create_game
     return Game.find_by_id(self.game_id) if self.created
     doc_id = Document.all.map {|d| d.id}.sample
-    game = Game.create(document_id: doc_id)
-    game.setup(self.player1, self.player2, self.player3)
+    doc = Document.find_by_id(doc_id)
+    game = Game.setup(doc, self.player1, self.player2, self.player3)
     self.created = true
     self.game_id = game.id
     self.save
