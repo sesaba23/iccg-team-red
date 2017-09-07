@@ -3,6 +3,7 @@ class ReadersController < ApplicationController
   def waiting_for_question
     reader = Reader.find_by_id(params[:id])
     @story = reader.get_document_text
+    @scores = reader.get_scores
     if reader.is_questioner?
       redirect_to ask_game_reader_path and return
     elsif reader.question_available?
@@ -22,6 +23,7 @@ class ReadersController < ApplicationController
       redirect_to answer_game_reader_path and return
     end
     @story = reader.get_document_text
+    @scores = reader.get_scores
     @whiteboard = reader.get_whiteboard_hashes
     @ask_path = ask_game_reader_path
     if params[:question]
@@ -45,6 +47,7 @@ class ReadersController < ApplicationController
       redirect_to review_game_reader_path and return
     end
     @story = reader.get_document_text
+    @scores = reader.get_scores
     @whiteboard = reader.get_whiteboard_hashes
     @question = Reader.find_by_id(params[:id]).get_question
     if params[:answer]
@@ -74,6 +77,7 @@ class ReadersController < ApplicationController
       redirect_to game_over_game_path(reader.game) and return
     else
       @story = reader.get_document_text
+      @scores = reader.get_scores
       @whiteboard = reader.get_whiteboard_hashes
       @question = reader.get_question
       @readers_answer = reader.get_readers_answer

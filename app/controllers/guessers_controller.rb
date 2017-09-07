@@ -8,6 +8,7 @@ class GuessersController < ApplicationController
       redirect_to answer_game_guesser_path and return
     else
       @whiteboard = guesser.get_whiteboard_hashes
+      @scores = guesser.get_scores
       render "waiting_for_question" and return
     end
   end
@@ -21,6 +22,7 @@ class GuessersController < ApplicationController
       redirect_to answer_game_guesser_path and return
     end
     @whiteboard = guesser.get_whiteboard_hashes
+    @scores = guesser.get_scores
     @ask_path = ask_game_guesser_path
     if params[:question]
       begin
@@ -39,6 +41,7 @@ class GuessersController < ApplicationController
       redirect_to review_game_guesser_path and return
     end
     @whiteboard = guesser.get_whiteboard_hashes
+    @scores = guesser.get_scores
     @question = Guesser.find_by_id(params[:id]).get_question
     if params[:answer]
       begin
@@ -67,6 +70,7 @@ class GuessersController < ApplicationController
       redirect_to game_over_game_path(guesser.game) and return
     else
       @whiteboard = guesser.get_whiteboard_hashes
+      @scores = guesser.get_scores
       @question = guesser.get_question
       @readers_answer = guesser.get_readers_answer
       @guessers_answer = guesser.get_guessers_answer

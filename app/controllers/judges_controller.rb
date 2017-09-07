@@ -7,6 +7,7 @@ class JudgesController < ApplicationController
     end
     @whiteboard = judge.get_whiteboard_hashes
     @story = judge.get_document_text
+    @scores = judge.get_scores
   end
 
   def waiting_for_answers
@@ -17,6 +18,7 @@ class JudgesController < ApplicationController
     @whiteboard = judge.get_whiteboard_hashes
     @story = judge.get_document_text
     @question = judge.get_question
+    @scores = judge.get_scores
   end
 
   def judging
@@ -35,6 +37,7 @@ class JudgesController < ApplicationController
     @whiteboard = judge.get_whiteboard_hashes
     @story = judge.get_document_text
     @question = judge.get_question
+    @scores = judge.get_scores
     answers = judge.get_answers
     @answer1 = answers[:answer1]
     @answer2 = answers[:answer2]
