@@ -88,7 +88,7 @@ class Game < ApplicationRecord
   # - param xxx_user_id: optional integer value identifying the user who plays in
   #         role xxx
   # - returns: a new game object that is added to document.games.
-  def self.setup(document, reader_user_id=0, guesser_user_id=0, judge_user_id=0)
+  def self.setup(document, reader_user_id, guesser_user_id, judge_user_id)
     game = Game.create(state: 'ask', guesser_score: 0, reader_score: 0,
                        judge_score: 0, current_questioner: [:reader, :guesser].sample)
     game.reader = Reader.create(user_id: reader_user_id)
