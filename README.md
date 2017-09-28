@@ -49,7 +49,7 @@ work on new features and fixes:
 ## Testing
 
 This project relies on Rspec and Capybara. You can run the projects tests with
-the `rake spec` command.
+the `rspec spec` command.
 
 ---
 [0]: https://www.aaai.org/ojs/index.php/aimagazine/article/view/2649
