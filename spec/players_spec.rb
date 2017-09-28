@@ -2,9 +2,15 @@ require 'rails_helper'
 
 describe "Players" do
   before do
-    text = "Orcas are the largest type of dolphin. They are appex predators. There prey includes fish including the great white shark, other whales and sealions."
-    @document = FactoryGirl.create(:document, :id => 1, :doc_type => 'text',
-                                   :text => text)
+    @title = 'Orcas'
+    @content = "Orcas are the largest type of dolphin. They are apex " \
+      "predators. There prey includes fish including the great white shark, " \
+      "other whales and sealions."
+    @document = FactoryGirl.create :document,
+      id: 1,
+      kind: 'plain text',
+      title: @title,
+      content: @text
     @game = Game.setup(@document, 1, 2, 3)
     @reader = @game.reader
     @guesser = @game.guesser
@@ -30,7 +36,7 @@ describe "Players" do
   it "should be able to determine what the question was and give answers" do
     questioner = @game.is_questioner(:reader) ? :reader : :guesser
     @game.submit_question(questioner, "What superlative is involved?")
-    
+
     expect(@reader.question_available?).to be_truthy
     expect(@guesser.question_available?).to be_truthy
     expect(@judge.question_available?).to be_truthy
@@ -214,11 +220,11 @@ describe "Players" do
     answers.each {|key, value| incorrect_answer = key if value=="a whale"}
     @judge.more_suspect_is(incorrect_answer)
     #round 2 ends
-    
+
     expect(@judge.is_game_over).to be_falsey
     expect(@reader.is_game_over).to be_falsey
     expect(@guesser.is_game_over).to be_falsey
-    
+
     questioner = @game.is_questioner(:reader) ? :reader : :guesser
     if questioner == :reader
       @reader.submit_question("What type of dolphin?")
@@ -263,7 +269,7 @@ describe "Players" do
     incorrect_answer = nil
     answers.each {|key, value| incorrect_answer = key if value=="a whale"}
     @judge.more_suspect_is(incorrect_answer)
-    #round 2 ends    
+    #round 2 ends
     questioner = @game.is_questioner(:reader) ? :reader : :guesser
     if questioner == :reader
       @reader.submit_question("What type of dolphin?")

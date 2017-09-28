@@ -1,22 +1,30 @@
 require 'rails_helper'
-require 'byebug'
 
 describe Game do
-
   before do
-    # 'build' creates but doesn't save object; 'create' also saves it
-    @document1 = FactoryGirl.create(:document, :id => 1, :doc_type => 'text',
-                                    :text => 'GLaDOS is a sentient computer. She promisses cake, but the cake is a lie.')
-    @document2 = FactoryGirl.create(:document, :id => 2, :doc_type => 'link',
-                                    :text => 'https://en.wikipedia.org/wiki/Aesop%27s_Fables')
-    @document3 = FactoryGirl.create(:document, :id => 3, :doc_type => 'embedded_youtube',
-                                    :text => 'https://www.youtube.com/embed/_qah8oIzCwk')
-    @document4 = FactoryGirl.create(:document, :id => 4, :doc_type => 'link',
-                                    :text => 'http://www.aesopfables.com/cgi/aesop1.cgi?1&Androcles')
+    @document1 = FactoryGirl.create :document, id: 1,
+      kind: 'text',
+      title: 'Portal',
+      content: 'GLaDOS is a sentient computer. She promises cake, but the cake is a lie.'
+    @document2 = FactoryGirl.create :document,
+      id: 2,
+      kind: 'link',
+      title: 'untitled',
+      content: 'https://en.wikipedia.org/wiki/Aesop%27s_Fables'
+    @document3 = FactoryGirl.create :document,
+      id: 3,
+      kind: 'embedded_youtube',
+      title: 'untitled',
+      content: 'https://www.youtube.com/embed/_qah8oIzCwk'
+    @document4 = FactoryGirl.create :document,
+      id: 4,
+      kind: 'link',
+      title: 'untitled',
+      content: 'http://www.aesopfables.com/cgi/aesop1.cgi?1&Androcles'
   end
 
   #################### CREATORS ####################
-  
+
   describe "setup" do
     it "should create a new game in a valid initial state" do
       @game = Game.setup(@document1, 1, 2, 3)
@@ -32,13 +40,13 @@ describe Game do
   end
 
   #################### MUTATORS ####################
-  
+
   describe "submit_question" do
     before do
       @game = Game.setup(@document1, 1, 2, 3)
       @questioner = @game.is_questioner(:reader) ? :reader : :guesser
     end
-    
+
     it "should raise RoleMismatchError if role not current questioner" do
       role = @game.is_questioner(:reader) ? :guesser : :reader
       expect {@game.submit_question(role, "But I have a question!")}.
@@ -77,7 +85,7 @@ describe Game do
       expect {@game.submit_answer(:reader, "pi is 3.145926")}.
         to raise_error(NotYetAvailableError)
     end
-    
+
     it "should raise NoContentError if answer is empty" do
       @game.submit_question(@questioner, "abcd?")
       expect {@game.submit_answer(:guesser, "")}.
@@ -119,7 +127,7 @@ describe Game do
       expect {@game.more_suspect_answer_is(:answer1)}.
         to raise_error(NotYetAvailableError)
     end
-  
+
     it "after answers were submitted should allow to submit a judgement to the game" do
       @game.submit_answer(:reader, "Orcas")
       answers = @game.get_anonymized_answers
@@ -220,12 +228,12 @@ describe Game do
       @game = Game.setup(@document1, 1, 2, 3)
       @questioner = @game.is_questioner(:reader) ? :reader : :guesser
     end
-    
+
     it "should raise NotYetAvailableError if question not yet submitted in this round" do
       expect {@game.get_question}.
         to raise_error(NotYetAvailableError)
     end
-    
+
     it "should return the current question" do
       @game.submit_question(@questioner, "Who eats Great Whites?")
       expect(@game.get_question).
@@ -288,7 +296,7 @@ describe Game do
 
     it "should return the text if the document is a text" do
       expect(@game1.document_content).
-        to eq('GLaDOS is a sentient computer. She promisses cake, but the cake is a lie.')
+        to eq('GLaDOS is a sentient computer. She promises cake, but the cake is a lie.')
     end
 
     it "should return the link if the document is a link" do
