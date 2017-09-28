@@ -29,7 +29,7 @@ class Reader < ApplicationRecord
   end
 
   # Get the question for this round.
-  # - raises: NotYetAvailableError if no question is yet available for this round. 
+  # - raises: NotYetAvailableError if no question is yet available for this round.
   # - returns: the question for this round.
   def get_question
     self.game.get_question
@@ -76,7 +76,7 @@ class Reader < ApplicationRecord
   #            * link: url as a string
   #            * embedded_youtube: url for (embedded) youtube video as a string
   def get_document_text
-    self.game.document_content
+    self.game.document
   end
 
   # Get the type of the document for this game.
@@ -96,7 +96,7 @@ class Reader < ApplicationRecord
   end
 
   #################### MUTATORS ####################
-  
+
   # Submit a question to the game.
   # - param question: a nonempty string that represents the question
   # - raises: RoleMismatchError if reader is not the current questioner
