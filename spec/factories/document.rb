@@ -2,7 +2,8 @@ FactoryGirl.define do
     factory :document do
         #default values
         id 1
-        doc_type 'text'
-        text 'Some Orcas hunt Great Whites. They knock them out, suffacte them, and eat their livers.'
+        kind 'text'
+        title 'Orcas'
+        content 'Some Orcas hunt Great Whites. They knock them out, suffocate them, and eat their livers.'
     end
 end

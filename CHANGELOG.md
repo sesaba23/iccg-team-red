@@ -1,6 +1,12 @@
 # Changelog
 
-2017-09-27:
+2017-09-28:
+- Include some of Aesop's fables to use in the game during testing.
+- Modify `documents` table to include the title field and rename other fields.
+- Update views to use _document_ objects directly.
+- Update specs.
+
+2017-09-28:
 - Include configuration an provision files to setup a virtual development
   environment with Vagrant.
 - Organize README information and move some contents to other files.

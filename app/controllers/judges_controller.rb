@@ -6,7 +6,7 @@ class JudgesController < ApplicationController
       redirect_to waiting_for_answers_game_judge_path and return
     end
     @whiteboard = judge.get_whiteboard_hashes
-    @story = judge.get_document_text
+    @document = judge.get_document_text
     @scores = judge.get_scores
   end
 
@@ -16,7 +16,7 @@ class JudgesController < ApplicationController
       redirect_to judging_game_judge_path and return
     end
     @whiteboard = judge.get_whiteboard_hashes
-    @story = judge.get_document_text
+    @document = judge.get_document_text
     @question = judge.get_question
     @scores = judge.get_scores
   end
@@ -35,7 +35,7 @@ class JudgesController < ApplicationController
       end
     end
     @whiteboard = judge.get_whiteboard_hashes
-    @story = judge.get_document_text
+    @document = judge.get_document_text
     @question = judge.get_question
     @scores = judge.get_scores
     answers = judge.get_answers

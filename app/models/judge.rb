@@ -9,15 +9,15 @@ class Judge < ApplicationRecord
   def new_round?
     self.game.new_round?
   end
-  
+
   # Ask if a question is already available for this round.
   # - returns a boolean indicating whether a question is already available.
   def question_available?
     self.game.question_available
   end
-  
+
   # Get the question for this round.
-  # - raises: NotYetAvailableError if no question is yet available for this round. 
+  # - raises: NotYetAvailableError if no question is yet available for this round.
   # - returns: the question for this round.
   def get_question
     self.game.get_question
@@ -66,14 +66,14 @@ class Judge < ApplicationRecord
   def get_document_type
     self.game.get_document_type
   end
-  
+
   # Get the textual contents of the document.
   # - returns: depends on type of document
   #            * text: text as a string
   #            * link: url as a string
   #            * embedded_youtube: url for (embedded) youtube video as a string
   def get_document_text
-    self.game.document_content
+    self.game.document
   end
 
   # Ask whether the game has concluded.

@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170831093329) do
+ActiveRecord::Schema.define(version: 20170928002430) do
 
   create_table "documents", force: :cascade do |t|
-    t.string "doc_type"
-    t.string "text"
+    t.string "kind"
+    t.string "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "title", default: "untitled", null: false
   end
 
   create_table "games", force: :cascade do |t|

@@ -1,5 +1,5 @@
-<h2> Story </h2>
-    <div class="document-scroll">
-        <%= @story %>
-    </div>
-
+<h2>Document</h2>
+<div class="document-scroll">
+  <div><%= @document.title %></div>
+  <div><%= simple_format @document.content %></div>
+</div>

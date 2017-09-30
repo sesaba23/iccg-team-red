@@ -1,8 +1,8 @@
 class ReadersController < ApplicationController
-  
+
   def waiting_for_question
     reader = Reader.find_by_id(params[:id])
-    @story = reader.get_document_text
+    @document = reader.get_document_text
     @scores = reader.get_scores
     if reader.is_questioner?
       redirect_to ask_game_reader_path and return
@@ -13,7 +13,7 @@ class ReadersController < ApplicationController
       render "waiting_for_question" and return
     end
   end
-  
+
   def ask
     reader = Reader.find_by_id(params[:id])
     unless reader.is_questioner?
@@ -22,7 +22,7 @@ class ReadersController < ApplicationController
     if reader.question_available?
       redirect_to answer_game_reader_path and return
     end
-    @story = reader.get_document_text
+    @document = reader.get_document_text
     @scores = reader.get_scores
     @whiteboard = reader.get_whiteboard_hashes
     @ask_path = ask_game_reader_path
@@ -41,12 +41,12 @@ class ReadersController < ApplicationController
 
   def answer
     ### should only get to answer view if
-    ### answer not yet available 
+    ### answer not yet available
     reader = Reader.find_by_id(params[:id])
     if reader.get_readers_answer
       redirect_to review_game_reader_path and return
     end
-    @story = reader.get_document_text
+    @document = reader.get_document_text
     @scores = reader.get_scores
     @whiteboard = reader.get_whiteboard_hashes
     @question = Reader.find_by_id(params[:id]).get_question
@@ -76,7 +76,7 @@ class ReadersController < ApplicationController
     elsif reader.is_game_over
       redirect_to game_over_game_path(reader.game) and return
     else
-      @story = reader.get_document_text
+      @document = reader.get_document_text
       @scores = reader.get_scores
       @whiteboard = reader.get_whiteboard_hashes
       @question = reader.get_question
@@ -85,5 +85,5 @@ class ReadersController < ApplicationController
       render 'review' and return
     end
   end
-  
+
 end
