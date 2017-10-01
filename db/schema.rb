@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170928002430) do
+ActiveRecord::Schema.define(version: 20171001124648) do
 
   create_table "documents", force: :cascade do |t|
     t.string "kind"
@@ -63,6 +63,19 @@ ActiveRecord::Schema.define(version: 20170928002430) do
     t.index ["whiteboard_id"], name: "index_lines_on_whiteboard_id"
   end
 
+  create_table "managers", force: :cascade do |t|
+    t.integer "offline"
+    t.text "idle"
+    t.integer "queued"
+    t.integer "playing"
+    t.integer "active_synchronous_games"
+    t.integer "concluded_synchronous_games"
+    t.integer "active_asynchronous_games"
+    t.integer "concluded_asynchronous_games"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "multiplayer_queues", force: :cascade do |t|
     t.integer "player1"
     t.integer "player2"
@@ -88,6 +101,17 @@ ActiveRecord::Schema.define(version: 20170928002430) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_readers_on_game_id"
+  end
+
+  create_table "sync_games_managers", force: :cascade do |t|
+    t.integer "offline"
+    t.text "idle"
+    t.integer "queued"
+    t.integer "playing"
+    t.integer "active_games"
+    t.integer "finished_games"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
