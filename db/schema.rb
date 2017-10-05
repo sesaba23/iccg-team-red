@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171001124648) do
+ActiveRecord::Schema.define(version: 20171005180839) do
+
+  create_table "collections", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "collections_documents", id: false, force: :cascade do |t|
+    t.integer "collection_id", null: false
+    t.integer "document_id", null: false
+  end
 
   create_table "documents", force: :cascade do |t|
     t.string "kind"

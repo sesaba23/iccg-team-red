@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :collections
   resources :sync_games_managers
   resources :queued_players
   resources :multiplayer_queues
