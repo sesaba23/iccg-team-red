@@ -104,12 +104,11 @@ ActiveRecord::Schema.define(version: 20171001124648) do
   end
 
   create_table "sync_games_managers", force: :cascade do |t|
-    t.integer "offline"
     t.text "idle"
-    t.integer "queued"
-    t.integer "playing"
-    t.integer "active_games"
-    t.integer "finished_games"
+    t.text "queued"
+    t.text "playing"
+    t.text "active_games"
+    t.text "finished_games"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -117,6 +116,7 @@ ActiveRecord::Schema.define(version: 20171001124648) do
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "email"
+    t.text "known_documents"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "password_digest"

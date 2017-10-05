@@ -1,4 +1,7 @@
 class User < ApplicationRecord
+
+    serialize :known_documents, Array # an array of document ids. Each document id occurs at most once.
+  
     attr_accessor :remember_token
     before_save { self.email = email.downcase }
     validates :name, presence: true, length: {maximum: 50}
@@ -39,5 +42,25 @@ class User < ApplicationRecord
     # Forgets a user.
     def forget
         update_attribute(:remember_digest, nil)
+    end
+
+    # adds a document to this user's known documents
+    # param document: a document instance
+    def knows (document)
+      self.known_documents << document.id unless self.known_documents.include? document.id
+      self.save
+    end
+
+    # get this user's known documents
+    # returns: an array of documents this user already knows
+    def familiar_documents
+      self.known_documents.map {|doc_id| Document.find_by(id: doc_id)}
+    end
+
+    # determine if this user is familiar with a document
+    # param document: a document instance
+    # returns: a boolean indicating whether the user is familiar with this document
+    def knows? (document)
+      self.known_documents.include? document.id
     end
 end

@@ -64,7 +64,7 @@ group :test do
   gem 'cucumber-rails-training-wheels'
   gem 'database_cleaner'
   gem 'capybara' # Cucumber will pretend to be a browser
-  gem 'launchy' #a useful debugging aid for user stories 
+  gem 'launchy' #a useful debugging aid for user stories
 
   # Autoexecute BDD and TDD if neccessary
   gem 'guard-rspec'
