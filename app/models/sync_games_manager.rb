@@ -55,31 +55,22 @@ class SyncGamesManager < ApplicationRecord
     documents = args[:documents]
     documents ||= Documents.all
     
-    request = Request.create user: user,
-                             reader: roles.includes?(:reader),
-                             guesser: roles.includes?(:guesser),
-                             judge: roles.includes?(:judge),
-                             sync_games_manager: self
-    documents.each {|document| request.documents << document}
-    user_state[user] = :queued
-
-    invite_if_game_possible
+    add_request(user, roles, documents)
+    invite_and_remove_requests if users_match_for_game
   end
 
   # signal to the manager that a user has left the queue for syncronous games
   # must be queued in order to dequeue
   def dequeues (user)
-    raise IllegalStateTransitionError unless user_state(user) == :queued
-    request_id = Request.where(user: user).first.id
-    Request.destroy(request_id)
+    raise IllegalStateTransitionError unless user_state[user] == :queued
+    Request.destroy(user.request)
     user_state[user] = :idle
   end
 
   # signal to the manager that a user has accepted the invitation to a synchronous game
   # game must be available for user, in order for them to join
-  # returns: a string representing the path to game page for this user
   def joins_game (user)
-    raise IllegalStateTransitionError unless game_available_for? user
+    raise IllegalStateTransitionError unless user_state[user] == :invited
     
   end
 
@@ -97,9 +88,9 @@ class SyncGamesManager < ApplicationRecord
 
   ## concerning users
 
-  # determine if a game can start for user
+  # determine if a game invite is available for for user
   # param user: user object representing the user of interest
-  # returns: boolean indidcating if a game is available for user
+  # returns: boolean indidcating if an invite is available for user
   def game_available_for? (user)
   end
 
@@ -108,6 +99,11 @@ class SyncGamesManager < ApplicationRecord
   # raises: StandardError if user is not invited
   # returns: :reader, :guesser or :judge
   def will_play_as (user)
+  end
+
+  # determine if a game has started
+  # returns: a boolean indiciation whether a game has started for this user
+  def game_started_for (user)
   end
 
   # get a user's current activity, as far as the syncronous manager is concerned.
@@ -144,21 +140,38 @@ class SyncGamesManager < ApplicationRecord
 
   private
 
-  def invite_if_game_possible
-    match = compatible_users_found
-    if match
-      reader, guesser, judge, document = match
-      users = [reader, guesser, judge]
+  def add_request (user, roles, documents)
+    request = Request.create user: user,
+                             reader: roles.includes?(:reader),
+                             guesser: roles.includes?(:guesser),
+                             judge: roles.includes?(:judge),
+                             sync_games_manager: self
+    
+    documents.each {|document| request.documents << document}
+    user_state[user] = :queued
+  end
+
+  def invite_and_remove_requests(match)
+    reader, guesser, judge, document = match
+    users = [reader, guesser, judge]
       
-      invite = Invite.create sync_games_manager: SyncGamesManager.get,
-                             reader: reader,
-                             guesser: guesser,
-                             judge: judge,
-                             document: document
-      users.each do |user|
-        
-      end
-   
+    invite = Invite.create sync_games_manager: SyncGamesManager.get,
+                           reader_id: reader.id,
+                           guesser_id: guesser.id,
+                           judge_id: judge.id,
+                           document: document
+    users.each {|user| invites.users << user}
+    self.invites << invite
+      
+    ## update user states and remove requests
+    users.each do |user|
+      Request.destroy(user.request)
+      user_state[user] = :invited
     end
+  end
+
+  def users_match_for_game
+    requests = Request.all
+    # TODO: finish
   end
 end

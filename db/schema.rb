@@ -61,11 +61,11 @@ ActiveRecord::Schema.define(version: 20171009123703) do
   end
 
   create_table "invites", force: :cascade do |t|
+    t.integer "sync_games_manager_id"
+    t.integer "document_id"
     t.integer "reader_id"
     t.integer "guesser_id"
     t.integer "judge_id"
-    t.integer "sync_games_manager_id"
-    t.integer "document_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["document_id"], name: "index_invites_on_document_id"
@@ -153,11 +153,13 @@ ActiveRecord::Schema.define(version: 20171009123703) do
     t.string "name"
     t.string "email"
     t.text "known_documents"
+    t.integer "invite_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "password_digest"
     t.string "remember_digest"
     t.boolean "admin", default: false
+    t.index ["invite_id"], name: "index_users_on_invite_id"
   end
 
   create_table "waiting_players", force: :cascade do |t|
