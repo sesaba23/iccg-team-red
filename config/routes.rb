@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :invites
+  resources :requests
   resources :collections
   resources :sync_games_managers
   resources :queued_players

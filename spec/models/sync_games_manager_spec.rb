@@ -9,7 +9,7 @@ require 'byebug'
 # basic queue (preconditions & postconditions)
 # ------
 # not enough enqueued for game to start
-# 3 incompatible users queued
+# 3 incompatible* users queued
 # 3 compatible users queued
 # 4 users queued 3 of whom are compatible
 # 3 compatible users queued but one declines
@@ -19,10 +19,14 @@ require 'byebug'
 # ------
 # assigned roles consistent with known documents for each user
 # assigned roles consistent with user preferences
+# ===========
+# * 3 users are considered compatible if the intersection of their selected document pools contains
+#   at least one document for which a valid role assigment is possible. A role assignment is valid, if
+#   the guesser is unfamiliar with the document and the assigment is compatible with user preferences.
 
 describe SyncGamesManager do
   before(:each) do
-    ## ONLY ONE DOCUMENT MAY BE MADE MADE AVAILABLE HERE (otherwise some tests break)
+    ## ONLY ONE DOCUMENT MAY BE MADE AVAILABLE HERE (otherwise some tests break)
     @document1 = FactoryGirl.create :document, kind: "text", title: "orcas",
                                     content: "Orcas are appex predators. They live in all oceans."
     # @document2 = FactoryGirl.create :document, kind: "text", title: "Muad'Dib",
@@ -36,8 +40,8 @@ describe SyncGamesManager do
     @user4 = FactoryGirl.create :user, id: 4, name: "user4",
                                 email: "user4@email.com", password: "super_pw"
     SyncGamesManager.first.destroy if SyncGamesManager.first
-    SyncGamesManager.init
-    @sgm = SyncGamesManager.first
+    SyncGamesManager.get
+    @sgm = SyncGamesManager.get
   end
   describe "enqueues" do
     it "should cause a user to be reported as queued" do
@@ -137,15 +141,35 @@ describe SyncGamesManager do
     end
   end
   describe "when 3 users are queued and one user wishes to play as guesser, and does not know the document" do
+    before(:all) do
+      @sgm.enqueues @user1
+      @sgm.enqueues @user3, roles: [:guesser]
+    end
     it "a game should start and the user should become guesser" do
+      @sgm.enqueues @user2
+      [@user1, @user2, @user3].
+        each {|usr| expect(@sgm.game_available_for? usr).to be_truthy}
+      expect(@sgm.will_play_as @user3).to eq(:guesser)
     end
     it "a second user also wishes to play as guesser a game should not start" do
+      @sgm.enqueues @user2, roles: [:guesser]
+      [@user1, @user2, @user3].
+        each {|usr| expect(@sgm.game_available_for? usr).to be_truthy}
     end
   end
-  describe "two user want to play as guesser and one would play in any role" do
-    it "game should not start" do
-    end
-    it "and another player queues who would play as :judge a game should start" do
+  describe "when 4 compatible users queue as 2 judges, 1 reader and 1 guesser" do
+    it "a game should start" do
+      @sgm.enqueues @user1, roles: [:judge]
+      @sgm.enqueues @user2, roles: [:guesser]
+      @sgm.enqueues @user3, roles: [:judge]
+      [@user1, @user2, @user3].
+        each {|usr| expect(@sgm.game_available_for? usr).to be_falsey}
+      @sgm.enqueues @user4, roles: [:reader]
+      expect(@sgm.game_available_for? @user4).to be_truthy
+      expect([@user1, @user2, @user3].
+              map {|usr| @sgm.game_available_for? usr}.
+              select {|available| available == true}.
+              size).to eq(2)
     end
   end
 end

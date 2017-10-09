@@ -1,32 +1,39 @@
+## Purpose:
+## The purpose of this model is to coordinate the other models that are involved in playing
+## synchronous games.
+## Specficially, this model is responsible for starting and ending games, updating seen documents
+## and monitoring user activity insofar as that activity indiciates that documents are interacted with,
+## the queue is joined or left and games are started or abandoned.
+##
+## * Every user can play only one synchronous game at a time.
+## * When a game starts, the user's known-documents lists must be updated to include the
+##   document of the new game.
+## * When players leave games, the games must end up in their game_over states.
+## * Guessers should not be familiar with the documents of their games from previous games.
+## * Games should start as soon as three compatible players have joined the queue.
+##   (At least one of them must be unfamiliar with the document.)
+
 class SyncGamesManager < ApplicationRecord
 
-  serialize :idle, Array
-  serialize :queued, Array
-  serialize :invited, Array
-  serialize :playing, Array
-  serialize :active_games, Array
-  serialize :finished_games, Array
+  # Rep Invariant:
+  # Every existing user is in one of the @@states.
+  # Every queued user has exactly one request. Only queued users have requests.
+  # Every invited user is associated with exactly one invite. Only invited users are associated with invites.
 
-  ## Purpose:
-  ## The purpose of this model is to coordinate the other models that are involved in playing
-  ## synchronous games.
-  ## Specficially, this model is responsible for starting and ending games, updating seen documents
-  ## and monitoring user activity insofar as that activity indiciates that documents are interacted with,
-  ## the queue is joined or left and games are started or abandoned.
-  ##
-  ## * Every user can play only one synchronous game at a time.
-  ## * When a game starts, the user's known-documents lists must be updated to include the
-  ##   document of the new game.
-  ## * When players leave games, the games must end up in their game_over states.
-  ## * Guessers should not be familiar with the documents of their games from previous games.
-  ## * Games should start as soon as three compatible players have joined the queue.
-  ##   (At least one of them must be unfamiliar with the document.)
+  serialize :user_state, Hash ## maps users to their states
+  has_many :invites ## represents an invitation to join a game
+  has_many :requests ## represents a queued user
+  
+  @@states = [:idle, :queued, :invited, :playing] ## states users can have
 
   #################### CREATORS ####################
 
   # starts the manager.
   # makes sure that there is only one manager at all times.
-  def SyncGamesManager.init
+  # returns: SyncGamesManager instance
+  def SyncGamesManager.get
+    SyncGamesManager.create if SyncGamesManager.all.empty?
+    return SyncGamesManager.first
   end
 
   #################### MUTATORS ####################
@@ -41,17 +48,39 @@ class SyncGamesManager < ApplicationRecord
   #                indicating which roles the user is willing to play in the game.
   # optional param documents: an array of documents the user is willing to play with
   # must be idle to be able to enqueue
-  def enqueues(user, *args)
+  def enqueues(user, **args)
+    raise IllegalStateTransitionError unless user_state(user) == :idle
+    roles = args[:roles]
+    roles ||= [:reader, :guesser, :judge]
+    documents = args[:documents]
+    documents ||= Documents.all
+    
+    request = Request.create user: user,
+                             reader: roles.includes?(:reader),
+                             guesser: roles.includes?(:guesser),
+                             judge: roles.includes?(:judge),
+                             sync_games_manager: self
+    documents.each {|document| request.documents << document}
+    user_state[user] = :queued
+
+    invite_if_game_possible
   end
 
   # signal to the manager that a user has left the queue for syncronous games
   # must be queued in order to dequeue
   def dequeues (user)
+    raise IllegalStateTransitionError unless user_state(user) == :queued
+    request_id = Request.where(user: user).first.id
+    Request.destroy(request_id)
+    user_state[user] = :idle
   end
 
   # signal to the manager that a user has accepted the invitation to a synchronous game
   # game must be available for user, in order for them to join
+  # returns: a string representing the path to game page for this user
   def joins_game (user)
+    raise IllegalStateTransitionError unless game_available_for? user
+    
   end
 
   # signal to the manage that a user has declined the invitation to a synchronous game
@@ -111,5 +140,25 @@ class SyncGamesManager < ApplicationRecord
 
   # returns: an array of all previously concluded games
   def get_finished_games
+  end
+
+  private
+
+  def invite_if_game_possible
+    match = compatible_users_found
+    if match
+      reader, guesser, judge, document = match
+      users = [reader, guesser, judge]
+      
+      invite = Invite.create sync_games_manager: SyncGamesManager.get,
+                             reader: reader,
+                             guesser: guesser,
+                             judge: judge,
+                             document: document
+      users.each do |user|
+        
+      end
+   
+    end
   end
 end

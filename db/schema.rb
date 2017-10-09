@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171005180839) do
+ActiveRecord::Schema.define(version: 20171009123703) do
 
   create_table "collections", force: :cascade do |t|
     t.string "name"
@@ -29,6 +29,11 @@ ActiveRecord::Schema.define(version: 20171005180839) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title", default: "untitled", null: false
+  end
+
+  create_table "documents_requests", id: false, force: :cascade do |t|
+    t.integer "request_id", null: false
+    t.integer "document_id", null: false
   end
 
   create_table "games", force: :cascade do |t|
@@ -53,6 +58,18 @@ ActiveRecord::Schema.define(version: 20171005180839) do
     t.integer "game_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "invites", force: :cascade do |t|
+    t.integer "reader_id"
+    t.integer "guesser_id"
+    t.integer "judge_id"
+    t.integer "sync_games_manager_id"
+    t.integer "document_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_invites_on_document_id"
+    t.index ["sync_games_manager_id"], name: "index_invites_on_sync_games_manager_id"
   end
 
   create_table "judges", force: :cascade do |t|
@@ -114,12 +131,20 @@ ActiveRecord::Schema.define(version: 20171005180839) do
     t.index ["game_id"], name: "index_readers_on_game_id"
   end
 
+  create_table "requests", force: :cascade do |t|
+    t.boolean "reader"
+    t.boolean "guesser"
+    t.boolean "judge"
+    t.integer "sync_games_manager_id"
+    t.integer "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sync_games_manager_id"], name: "index_requests_on_sync_games_manager_id"
+    t.index ["user_id"], name: "index_requests_on_user_id"
+  end
+
   create_table "sync_games_managers", force: :cascade do |t|
-    t.text "idle"
-    t.text "queued"
-    t.text "playing"
-    t.text "active_games"
-    t.text "finished_games"
+    t.text "user_state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
