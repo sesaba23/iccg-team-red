@@ -66,13 +66,21 @@ class SyncGamesManager < ApplicationRecord
     raise IllegalStateTransitionError unless user_state[user] == :queued
     Request.destroy(user.request)
     user_state[user] = :idle
+    self.save
   end
 
   # signal to the manager that a user has accepted the invitation to a synchronous game
   # game must be available for user, in order for them to join
   def joins_game (user)
     raise IllegalStateTransitionError unless user_state[user] == :invited
-    
+    invite = user.invite
+    invite.accept user
+    if invite.all_accepted?
+      players = invite.users
+      ## TODO: complete
+      players.each { |usr| user_state[usr] = :playing}
+      self.save
+    end
   end
 
   # signal to the manage that a user has declined the invitation to a synchronous game
@@ -103,7 +111,7 @@ class SyncGamesManager < ApplicationRecord
   end
 
   # determine if a game has started
-  # returns: a boolean indiciation whether a game has started for this user
+  # returns: a boolean indiciating whether a game has started for this user
   def game_started_for (user)
   end
 
@@ -150,6 +158,7 @@ class SyncGamesManager < ApplicationRecord
     
     documents.each {|document| request.documents << document}
     user_state[user] = :queued
+    self.save
   end
 
   def if_possible_invite_and_remove_requests
@@ -174,6 +183,7 @@ class SyncGamesManager < ApplicationRecord
       Request.destroy(user.request)
       user_state[user] = :invited
     end
+    self.save
   end
 
   # tries to find 3 requests such that it's possible to assign each to a different role
@@ -206,6 +216,8 @@ class SyncGamesManager < ApplicationRecord
   # param request: the request which the other requests are suppoesed to be compatible with
   # returns: an enumerable containing requests that are compatible with request
   def compatible (requests, request)
-    requests.select {|r| !((request.documents & r.documents).empty?)}
+    requests.
+      select {|r| request != r}.
+      select {|r| !((request.documents & r.documents).empty?)}
   end
 end

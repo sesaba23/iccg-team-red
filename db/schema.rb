@@ -66,6 +66,7 @@ ActiveRecord::Schema.define(version: 20171009123703) do
     t.integer "reader_id"
     t.integer "guesser_id"
     t.integer "judge_id"
+    t.text "accepted"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["document_id"], name: "index_invites_on_document_id"

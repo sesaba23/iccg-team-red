@@ -1,7 +1,7 @@
 class User < ApplicationRecord
 
   serialize :known_documents, Array # an array of document ids. Each document id occurs at most once.
-  belongs_to :invite
+  belongs_to :invite, required: false
   has_one :request
   
     attr_accessor :remember_token

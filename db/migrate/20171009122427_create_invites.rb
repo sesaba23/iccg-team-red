@@ -6,6 +6,7 @@ class CreateInvites < ActiveRecord::Migration[5.1]
       t.integer :reader_id
       t.integer :guesser_id
       t.integer :judge_id
+      t.text :accepted
 
       t.timestamps
     end
