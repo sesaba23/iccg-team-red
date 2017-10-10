@@ -56,7 +56,8 @@ class SyncGamesManager < ApplicationRecord
     documents ||= Documents.all
     
     add_request(user, roles, documents)
-    invite_and_remove_requests if users_match_for_game
+    
+    if_possible_invite_and_remove_requests
   end
 
   # signal to the manager that a user has left the queue for syncronous games
@@ -151,6 +152,11 @@ class SyncGamesManager < ApplicationRecord
     user_state[user] = :queued
   end
 
+  def if_possible_invite_and_remove_requests
+    match = match_for_game
+    invite_and_remove_requests(match) if match
+  end
+
   def invite_and_remove_requests(match)
     reader, guesser, judge, document = match
     users = [reader, guesser, judge]
@@ -170,8 +176,36 @@ class SyncGamesManager < ApplicationRecord
     end
   end
 
-  def users_match_for_game
-    requests = Request.all
-    # TODO: finish
+  # tries to find 3 requests such that it's possible to assign each to a different role
+  # and there is a document which the guesser is unfamiliar with
+  # returns: 3 requests and an array of documents or false
+  def match_for_game
+    guessers = Request.where(guesser: true).
+               # guesser.as_guesser behaves similarly to guesser but
+               # uses the intersection of unknown and selected documents
+               map {|guesser| guesser.as_guesser}
+    judges = Request.where(judge: true)
+    readers = Request.where(reader: true)
+
+    guessers.each do |guesser|
+      guesser_judges = compatible judges, guesser
+      compatible_readers = compatible readers, guesser
+      next if guesser_judges.empty? || compatible_readers.empty?
+
+      compatible_readers.each do |reader|
+        compatible_judges = compatible guesser_judges, reader
+        next if compatible_judges.empty?
+        judge = compatible_judges.sample
+        return reader, guesser, judge, judge.documents
+      end
+    end
+    return false
+  end
+
+  # param requests: an enumerable of requests
+  # param request: the request which the other requests are suppoesed to be compatible with
+  # returns: an enumerable containing requests that are compatible with request
+  def compatible (requests, request)
+    requests.select {|r| !((request.documents & r.documents).empty?)}
   end
 end
