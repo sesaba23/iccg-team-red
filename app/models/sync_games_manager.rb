@@ -1,3 +1,6 @@
+
+require 'byebug'
+
 ## Purpose:
 ## The purpose of this model is to coordinate the other models that are involved in playing
 ## synchronous games.
@@ -21,6 +24,7 @@ class SyncGamesManager < ApplicationRecord
   # Every invited user is associated with exactly one invite. Only invited users are associated with invites.
 
   serialize :user_state, Hash ## maps users to their states
+  serialize :games, Hash ## maps users to their active games
   has_many :invites ## represents an invitation to join a game
   has_many :requests ## represents a queued user
   
@@ -33,7 +37,9 @@ class SyncGamesManager < ApplicationRecord
   # returns: SyncGamesManager instance
   def SyncGamesManager.get
     SyncGamesManager.create if SyncGamesManager.all.empty?
-    return SyncGamesManager.first
+    sgm = SyncGamesManager.first
+    User.all.each { |user| sgm.user_state[user] = :idle if sgm.user_state[user].nil? }
+    return sgm
   end
 
   #################### MUTATORS ####################
@@ -49,11 +55,11 @@ class SyncGamesManager < ApplicationRecord
   # optional param documents: an array of documents the user is willing to play with
   # must be idle to be able to enqueue
   def enqueues(user, **args)
-    raise IllegalStateTransitionError unless user_state(user) == :idle
+    raise IllegalStateTransitionError unless user_state[user] == :idle
     roles = args[:roles]
     roles ||= [:reader, :guesser, :judge]
     documents = args[:documents]
-    documents ||= Documents.all
+    documents ||= Document.all
     
     add_request(user, roles, documents)
     
@@ -64,7 +70,8 @@ class SyncGamesManager < ApplicationRecord
   # must be queued in order to dequeue
   def dequeues (user)
     raise IllegalStateTransitionError unless user_state[user] == :queued
-    Request.destroy(user.request)
+    # remove request and change user's state
+    Request.destroy(user.request.id)
     user_state[user] = :idle
     self.save
   end
@@ -76,9 +83,16 @@ class SyncGamesManager < ApplicationRecord
     invite = user.invite
     invite.accept user
     if invite.all_accepted?
+      # create the game, change users' states to playing
+      # and remove invite
       players = invite.users
-      ## TODO: complete
-      players.each { |usr| user_state[usr] = :playing}
+      game = Game.setup(invite.document,
+                        invite.reader_id, invite.guesser_id, invite.judge_id)
+      players.each do |usr|
+        user_state[usr] = :playing
+        games[usr.id] = game.id
+      end
+      Invite.destroy(invite.id)
       self.save
     end
   end
@@ -86,21 +100,36 @@ class SyncGamesManager < ApplicationRecord
   # signal to the manage that a user has declined the invitation to a synchronous game
   # game must be available for user, in order for them to decline
   def declines_game (user)
+    raise IllegalStateTransitionError unless user_state[user] == :invited
+    # set the declining user's state to idle and the other users' states to queued
+    # and remove the invite
+    users = user.invite.users
+    user_state[user] = :idle
+    users.each { |usr| user_state[usr] = :queued if usr != user }
+    Invite.destroy(user.invite.id)
+    self.save
   end
 
   # signal to the manager that a user has left a game
   # user must be playing in order to quit a game
   def quits_game (user)
+    raise IllegalStateTransitionError unless user_state[user] == :playing
+    # make sure the game is in it's game_over state and change the leaving
+    # user's state to idle
+    game = Game.find_by(id: games[user.id])
+    game.force_end unless game.is_over
+    user_state[user] = :idle
+    games[user.id] = nil # forget that the user was playing this game
+    self.save
   end
 
   #################### OBSERVERS ####################
 
-  ## concerning users
-
-  # determine if a game invite is available for for user
+  # determine if a game invite is available for user
   # param user: user object representing the user of interest
   # returns: boolean indidcating if an invite is available for user
   def game_available_for? (user)
+    user_state[user] == :invited
   end
 
   # determine which role user is invited to play in
@@ -108,52 +137,59 @@ class SyncGamesManager < ApplicationRecord
   # raises: StandardError if user is not invited
   # returns: :reader, :guesser or :judge
   def will_play_as (user)
+    raise StandardError unless user_state[user] == :invited
+    invite = user.invite
+    if invite.reader_id == user.id
+      return :reader
+    elsif invite.guesser_id == user.id
+      return :guesser
+    elsif invite.judge_id == user.id
+      return :judge
+    else
+      raise StandardError # should never get here
+    end
   end
 
   # determine if a game has started
   # returns: a boolean indiciating whether a game has started for this user
   def game_started_for (user)
+    user_state[user] == :playing
   end
 
-  # get a user's current activity, as far as the syncronous manager is concerned.
+  # get a user's current activity, as far as the syncronous games manager is concerned.
   # param user: user object representing the user of interest
-  # returns: one of the following: :idle, :queued, :playing
+  # returns: one of the following: :idle, :queued, :invited, :playing
   def get_activity (user)
+    user_state[user]
   end
 
-  # returns: an array of all idle users
+  # returns: an enumerable containing all idle users
   def idle_users
-  end
-
-  # returns: an array of all users who are eligible to start a game
-  def invited_users
-  end
-
-  # returns: an array of all users who are playing a synchronous game
-  def playing_users
+    user_state.select { |user, state| state == :idle }.keys
   end
 
   # returns: an array of all users who are queued for a synchronous game
   def queued_users
+    user_state.select { |user, state| state == :queued }.keys
   end
 
-  ## concerning games
-
-  # returns: an array of all active synchrnonous games
-  def get_active_games
+  # returns: an array of all users who are eligible to start a game
+  def invited_users
+    user_state.select { |user, state| state == :invited }.keys
   end
 
-  # returns: an array of all previously concluded games
-  def get_finished_games
+  # returns: an array of all users who are playing a synchronous game
+  def playing_users
+    user_state.select { |user, state| state == :playing }.keys
   end
 
   private
 
   def add_request (user, roles, documents)
     request = Request.create user: user,
-                             reader: roles.includes?(:reader),
-                             guesser: roles.includes?(:guesser),
-                             judge: roles.includes?(:judge),
+                             reader: roles.include?(:reader),
+                             guesser: roles.include?(:guesser),
+                             judge: roles.include?(:judge),
                              sync_games_manager: self
     
     documents.each {|document| request.documents << document}
@@ -168,19 +204,20 @@ class SyncGamesManager < ApplicationRecord
 
   def invite_and_remove_requests(match)
     reader, guesser, judge, document = match
-    users = [reader, guesser, judge]
+    users = [reader, guesser, judge].map {|r| r.user}
       
     invite = Invite.create sync_games_manager: SyncGamesManager.get,
-                           reader_id: reader.id,
-                           guesser_id: guesser.id,
-                           judge_id: judge.id,
+                           reader_id: reader.user.id,
+                           guesser_id: guesser.user.id,
+                           judge_id: judge.user.id,
                            document: document
-    users.each {|user| invites.users << user}
+    
+    users.each { |user| invite.users << user}
     self.invites << invite
       
     ## update user states and remove requests
     users.each do |user|
-      Request.destroy(user.request)
+      Request.destroy(user.request.id)
       user_state[user] = :invited
     end
     self.save
@@ -206,7 +243,7 @@ class SyncGamesManager < ApplicationRecord
         compatible_judges = compatible guesser_judges, reader
         next if compatible_judges.empty?
         judge = compatible_judges.sample
-        return reader, guesser, judge, judge.documents
+        return reader, guesser, judge, judge.documents.sample
       end
     end
     return false
@@ -217,7 +254,11 @@ class SyncGamesManager < ApplicationRecord
   # returns: an enumerable containing requests that are compatible with request
   def compatible (requests, request)
     requests.
-      select {|r| request != r}.
+      select {|r| request.id != r.id}. # IMPORTANT to compare ids because requests can
+                                       # be GuesserWrappers returned by Request#as_guesser
       select {|r| !((request.documents & r.documents).empty?)}
   end
+end
+
+class IllegalStateTransitionError < StandardError
 end

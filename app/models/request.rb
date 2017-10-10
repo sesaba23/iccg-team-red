@@ -31,6 +31,10 @@ class Request < ApplicationRecord
     def user
       @request.user
     end
+
+    def id
+      @request.id
+    end
     
     def documents
       unknown_documents = @request.documents - @request.user.familiar_documents

@@ -6,7 +6,7 @@ require 'byebug'
 # partitions:
 # ===========
 # ------
-# basic queue (preconditions & postconditions)
+# basic queue
 # ------
 # not enough enqueued for game to start
 # 3 incompatible* users queued
@@ -15,7 +15,7 @@ require 'byebug'
 # 3 compatible users queued but one declines
 # 3 compatible users queued but one delcines, but then another compatible user joins
 # ------
-# correct roles assigned (postconditions)
+# correct roles assigned
 # ------
 # assigned roles consistent with known documents for each user
 # assigned roles consistent with user preferences
@@ -45,12 +45,13 @@ describe SyncGamesManager do
   end
   describe "enqueues" do
     it "should cause a user to be reported as queued" do
-      expect(idle_users).not_to include(@user1)
+      expect(@sgm.idle_users).to include(@user1)
       @sgm.enqueues @user1
       expect(@sgm.get_activity @user1).to eq(:queued)
-      expect(@sgm.idle_users).to include(@user1)
+      expect(@sgm.idle_users).not_to include(@user1)
     end
-    it "should raise StandardError if user not idle" do
+    it "should raise an exception if user not idle" do
+      @sgm.enqueues @user1
       expect {@sgm.enqueues @user1}.to raise_error(IllegalStateTransitionError)
     end
   end
@@ -59,18 +60,20 @@ describe SyncGamesManager do
       @sgm.enqueues @user1
       @sgm.dequeues @user1 
       expect(@sgm.idle_users).to include(@user1)
-      expect(@sgm.get_ativity @user1).to eq(:idle)
+      expect(@sgm.get_activity @user1).to eq(:idle)
     end
     it "should raise StandardError if user not queued" do
       expect {@sgm.dequeues @user1}.to raise_error(IllegalStateTransitionError)
     end
   end
   describe "when 3 compatible users are queued" do
-    before do
+    before (:each) do
       @sgm.enqueues @user1
       @sgm.enqueues @user2
       @sgm.enqueues @user3
       @usrs = [@user1, @user2, @user3]
+      @invite = @user1.invite ## ugh, rspec/FactoryGirl forgets about
+                              ## user.invite if I don't don't do this...
     end
     it "their states should be :invited" do
       @usrs.
@@ -81,10 +84,13 @@ describe SyncGamesManager do
       @usrs.
         each {|usr| expect(@sgm.game_available_for? usr).to be_truthy}
     end
+  end
+  describe "when 3 compatible users are queued" do
     it "they should be able to tell the manager that they accept the game invite" do
-      @usrs.each {|usr| @sgm.joins_game usr}
-      @usrs.each {|usr| expect(@sgm.playing_users).to include(usr)}
-      expect(@sgm.get_active_games.size).to eq(1)
+      usrs = [@user1, @user2, @user3]
+      usrs.each { |usr| @sgm.enqueues usr }
+      User.all.each {|usr| @sgm.joins_game usr if @sgm.get_activity(usr) == :invited}
+      usrs.each {|usr| expect(@sgm.playing_users).to include(usr)}
     end
   end
   describe "when 3 incompatible users are queued" do

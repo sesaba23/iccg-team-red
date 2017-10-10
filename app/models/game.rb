@@ -307,6 +307,11 @@ class Game < ApplicationRecord
     self.update(state: 'ask')
   end
 
+  # Force the end of the game.
+  def force_end
+    self.update(state: 'game_over')
+  end
+
   #################### PRIVATE ####################
 
   private

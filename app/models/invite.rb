@@ -7,6 +7,7 @@ class Invite < ApplicationRecord
   def accept user
     raise StandardError unless self.users.include? user
     self.accepted << user unless self.accepted.include? user
+    self.save
   end
 
   def all_accepted?
