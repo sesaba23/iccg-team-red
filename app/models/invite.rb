@@ -13,4 +13,8 @@ class Invite < ApplicationRecord
   def all_accepted?
     self.accepted.size == 3
   end
+
+  def users_accepted
+    return accepted.dup
+  end
 end

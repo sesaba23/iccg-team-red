@@ -147,6 +147,7 @@ ActiveRecord::Schema.define(version: 20171009123703) do
   create_table "sync_games_managers", force: :cascade do |t|
     t.text "user_state"
     t.text "games"
+    t.text "old_request"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

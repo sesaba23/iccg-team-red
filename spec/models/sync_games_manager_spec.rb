@@ -146,24 +146,24 @@ describe SyncGamesManager do
       @sgm.joins_game User.find(1)
       @sgm.joins_game User.find(2)
       @sgm.joins_game User.find(4)
-      User.all.each {|usr| expect(@sgm.game_available_for? usr).to be_truthy unless usr==@user3}
+      User.all.each {|usr| expect(@sgm.game_started_for usr).to be_truthy unless usr==@user3}
     end
   end
   describe "when 3 users are queued and one user wishes to play as guesser, and does not know the document" do
-    before(:all) do
+    before(:each) do
       @sgm.enqueues @user1
       @sgm.enqueues @user3, roles: [:guesser]
     end
     it "a game should start and the user should become guesser" do
       @sgm.enqueues @user2
-      [@user1, @user2, @user3].
-        each {|usr| expect(@sgm.game_available_for? usr).to be_truthy}
-      expect(@sgm.will_play_as @user3).to eq(:guesser)
+      User.all.
+        each {|usr| expect(@sgm.game_available_for? usr).to be_truthy unless usr == @user4}
+      expect(@sgm.will_play_as User.find(3)).to eq(:guesser)
     end
     it "a second user also wishes to play as guesser a game should not start" do
       @sgm.enqueues @user2, roles: [:guesser]
-      [@user1, @user2, @user3].
-        each {|usr| expect(@sgm.game_available_for? usr).to be_truthy}
+      User.all.
+        each {|usr| expect(@sgm.game_available_for? usr).to be_falsey}
     end
   end
   describe "when 4 compatible users queue as 2 judges, 1 reader and 1 guesser" do

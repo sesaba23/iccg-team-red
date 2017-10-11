@@ -23,11 +23,13 @@ class SyncGamesManager < ApplicationRecord
   # Every queued user has exactly one request. Only queued users have requests.
   # Every invited user is associated with exactly one invite. Only invited users are associated with invites.
   # Users who's state is playing, are mapped to a game by the games hash.
+  # Users who's state is invited, are mapped to representations of requests that led to the current invite.
 
   @@check = true # check the rep invariant at the end of every mutator action if set to true
 
   serialize :user_state, Hash ## maps users to their states
-  serialize :games, Hash ## maps users to their active games
+  serialize :games, Hash ## maps users ids to their active games' ids
+  serialize :old_request, Hash ## maps invited users to requests.to_json that led to invites
   has_many :invites ## represents an invitation to join a game
   has_many :requests ## represents a queued user
   
@@ -96,6 +98,7 @@ class SyncGamesManager < ApplicationRecord
         usr.knows invite.document
         user_state[usr] = :playing
         games[usr.id] = game.id
+        old_request[usr] = nil
       end
       Invite.destroy(invite.id)
       self.save
@@ -107,11 +110,22 @@ class SyncGamesManager < ApplicationRecord
   # game must be available for user, in order for them to decline
   def declines_game (user)
     raise IllegalStateTransitionError unless user_state[user] == :invited
-    # set the declining user's state to idle and the other users' states to queued
-    # and remove the invite
+    # set the declining user's state to idle and the other users' states to queued,
+    # recreate their requests and remove the invite
+    old_request[user] = nil
     users = user.invite.users
     user_state[user] = :idle
     users.each { |usr| user_state[usr] = :queued if usr != user }
+    users_to_queue = user.invite.users_accepted
+    users_to_queue.each do |u|
+      r_json, doc_ids = old_request[u]
+      old_request[u] = nil
+      docs = doc_ids.map {|i| Document.find(i)}
+      r = Request.new
+      r.from_json r_json
+      r.save
+      docs.each {|d| r.documents << d}
+    end
     Invite.destroy(user.invite.id)
     self.save
     check_rep
@@ -129,6 +143,12 @@ class SyncGamesManager < ApplicationRecord
     games[user.id] = nil # forget that the user was playing this game
     self.save
     check_rep
+  end
+
+  # when a new user is created, this method allows registering them with the manager
+  # param user: an instance of User
+  def register user
+    user_state[user] ||= :idle
   end
 
   #################### OBSERVERS ####################
@@ -215,6 +235,11 @@ class SyncGamesManager < ApplicationRecord
     User.all.
       each {|user| raise "#{user.name} is #{user_state[user]} but games[#{user.name}] maps to a game" unless
             (games[user.id].nil? || user_state[user] == :playing)}
+    User.all.
+      each {|user| raise "#{user.name} is invited but their old request is not serialized" if old_request.nil?}
+    User.all.
+      each {|user| raise "#{user.name} is #{user_state[user]}, but an old request is serialized" if
+            (user_state[user] != :invited && !old_request[user].nil?)}
   end
 
   def add_request (user, roles, documents)
@@ -250,6 +275,7 @@ class SyncGamesManager < ApplicationRecord
       
     ## update user states and remove requests
     users.each do |user|
+      old_request[user] = [user.request.to_json, user.request.documents.map{|d| d.id}]
       Request.destroy(user.request.id)
       user_state[user] = :invited
     end
