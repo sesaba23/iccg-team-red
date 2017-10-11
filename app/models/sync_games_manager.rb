@@ -22,6 +22,9 @@ class SyncGamesManager < ApplicationRecord
   # Every existing user is in one of the @@states.
   # Every queued user has exactly one request. Only queued users have requests.
   # Every invited user is associated with exactly one invite. Only invited users are associated with invites.
+  # Users who's state is playing, are mapped to a game by the games hash.
+
+  @@check = true # check the rep invariant at the end of every mutator action if set to true
 
   serialize :user_state, Hash ## maps users to their states
   serialize :games, Hash ## maps users to their active games
@@ -62,8 +65,8 @@ class SyncGamesManager < ApplicationRecord
     documents ||= Document.all
     
     add_request(user, roles, documents)
-    
     if_possible_invite_and_remove_requests
+    check_rep
   end
 
   # signal to the manager that a user has left the queue for syncronous games
@@ -74,6 +77,7 @@ class SyncGamesManager < ApplicationRecord
     Request.destroy(user.request.id)
     user_state[user] = :idle
     self.save
+    check_rep
   end
 
   # signal to the manager that a user has accepted the invitation to a synchronous game
@@ -83,18 +87,20 @@ class SyncGamesManager < ApplicationRecord
     invite = user.invite
     invite.accept user
     if invite.all_accepted?
-      # create the game, change users' states to playing
-      # and remove invite
+      # create the game, change users' states to playing,
+      # update users' known documents and remove the invite
       players = invite.users
       game = Game.setup(invite.document,
                         invite.reader_id, invite.guesser_id, invite.judge_id)
       players.each do |usr|
+        usr.knows invite.document
         user_state[usr] = :playing
         games[usr.id] = game.id
       end
       Invite.destroy(invite.id)
       self.save
     end
+    check_rep
   end
 
   # signal to the manage that a user has declined the invitation to a synchronous game
@@ -108,6 +114,7 @@ class SyncGamesManager < ApplicationRecord
     users.each { |usr| user_state[usr] = :queued if usr != user }
     Invite.destroy(user.invite.id)
     self.save
+    check_rep
   end
 
   # signal to the manager that a user has left a game
@@ -121,6 +128,7 @@ class SyncGamesManager < ApplicationRecord
     user_state[user] = :idle
     games[user.id] = nil # forget that the user was playing this game
     self.save
+    check_rep
   end
 
   #################### OBSERVERS ####################
@@ -185,6 +193,30 @@ class SyncGamesManager < ApplicationRecord
 
   private
 
+  # checks the rep invariant, insert at the end of all mutators and creators
+  def check_rep
+    return unless @@check
+    User.all.each {|user| raise "user #{user.name} not registered" unless user_state.has_key? user}
+    user_state.each {|user, state| raise "illegal state #{state}" unless @@states.include? state}
+    user_state.
+      select {|user, state| state==:queued}.
+      each {|user, state| raise "#{user.name} is queued but has no request" if user.request.nil?}
+    Request.all.each {|r| raise "#{r} exists, but #{r.user} is not queued" unless
+                      user_state[r.user] == :queued}
+    User.all.
+      select {|user| user_state[user] == :invited}.
+      each {|user| raise "#{user.name} is invited but there is no invite" if user.invite.nil?}
+    Invite.all.each {|invite| invite.users.each {|user|
+                       raise "invite exists, but #{user.name} not invited" unless
+                         user_state[user] == :invited}}
+    User.all.
+      select {|user| user_state[user] == :playing}.
+      each {|user| raise "#{user.name} is playing but games[#{user.name}] maps to nil" if games[user.id].nil?}
+    User.all.
+      each {|user| raise "#{user.name} is #{user_state[user]} but games[#{user.name}] maps to a game" unless
+            (games[user.id].nil? || user_state[user] == :playing)}
+  end
+
   def add_request (user, roles, documents)
     request = Request.create user: user,
                              reader: roles.include?(:reader),
@@ -200,6 +232,7 @@ class SyncGamesManager < ApplicationRecord
   def if_possible_invite_and_remove_requests
     match = match_for_game
     invite_and_remove_requests(match) if match
+    return match
   end
 
   def invite_and_remove_requests(match)

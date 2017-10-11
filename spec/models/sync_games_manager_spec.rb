@@ -100,8 +100,8 @@ describe SyncGamesManager do
       @sgm.enqueues @user2
       @sgm.enqueues @user3
       @usrs = [@user1, @user2, @user3]
-      @usrs.each {|usr| @sgm.joins_game usr}
-      @usrs.each {|usr| @sgm.quits_game usr}
+      User.all.each {|usr| @sgm.joins_game usr if @sgm.get_activity(usr) == :invited}
+      User.all.each {|usr| @sgm.quits_game usr if @sgm.get_activity(usr) == :playing}
 
       ## queue again
       @sgm.enqueues @user1
@@ -112,27 +112,27 @@ describe SyncGamesManager do
       @usrs.each {|usr| expect(@sgm.queued_users).to include(usr)}
     end
     it "a game should not be available for them" do
-      @usrs.each {|usr| expect(@sgm.game_availalbe_for? usr).to be_falsey}
+      User.all.each {|usr| expect(@sgm.game_available_for? usr).to be_falsey}
     end
     it "they should not be able to join a game" do
-      @usrs.each {|usr| expect {@sgm.joins_game usr}.to raise_error(IllegalStateTransitionError)}
+      User.all.each {|usr| expect {@sgm.joins_game usr}.to raise_error(IllegalStateTransitionError)}
     end
     it "two of them should get a game invite if a forth (eligible) user joins" do
       @sgm.enqueues @user4
       expect(@sgm.game_available_for? @user4).to be_truthy
-      expect(@usrs.map {|usr| @sgm.game_available_for?}.
+      expect(@usrs.map {|usr| @sgm.game_available_for? usr}.
               select {|available| available == true}.
-              reduce(:+)).to eq(2)
+              size).to eq(2)
     end
   end
   describe "when 3 compatible users are queued and two accept but one declines the invite" do
-    before(:all) do
+    before (:each) do
       @sgm.enqueues @user1
       @sgm.enqueues @user2
       @sgm.enqueues @user3
-      @sgm.joins_game @user1
-      @sgm.joins_game @user2
-      @sgm.declines_game @user3
+      @sgm.joins_game User.find(1)
+      @sgm.joins_game User.find(2)
+      @sgm.declines_game User.find(3)
     end
     it "the user who declined should become idle" do
       expect(@sgm.get_activity @user3).to eq(:idle)
@@ -141,9 +141,12 @@ describe SyncGamesManager do
       expect(@sgm.get_activity @user1).to eq(:queued)
       expect(@sgm.get_activity @user2).to eq(:queued)
     end
-    it "after another compatible user joins and all accept the invite, a game should become available" do
-      @sgm.joins_games @user4
-      [@user1, @user2, @user4].each {|usr| expect(@sgm.game_available_for? usr).to be_truthy}
+    it "after another compatible user queues and all accept the invite, a game should become available" do
+      @sgm.enqueues @user4
+      @sgm.joins_game User.find(1)
+      @sgm.joins_game User.find(2)
+      @sgm.joins_game User.find(4)
+      User.all.each {|usr| expect(@sgm.game_available_for? usr).to be_truthy unless usr==@user3}
     end
   end
   describe "when 3 users are queued and one user wishes to play as guesser, and does not know the document" do
