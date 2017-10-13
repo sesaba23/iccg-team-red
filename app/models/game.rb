@@ -1,6 +1,6 @@
 # The Abstract Game
 # =================
-# 
+#
 # The game:
 # A game has three roles: guesser, reader and judge. In every game there is one of each.
 # It also has one document (e.g. a news article) which is available to reader and judge.
@@ -33,7 +33,7 @@
 # * submit_question
 # * submit_answer
 # * more_suspicious_answer_is
-#  
+#
 # Each of these will return an exception if it is called at an inappropriate time. For
 # example, submit_answer(:reader, "Who is Charlie?") can be called without exception
 # only after a question has been submitted. If it is called again before another question
@@ -48,7 +48,7 @@
 # 1. queries that can be called at any time
 # 2. queries that can be called without exception only after a particular mutator has
 #    been called without exception during the current round.
-#    For example, get_question only makes sense after a question has been submitted. 
+#    For example, get_question only makes sense after a question has been submitted.
 
 class Game < ApplicationRecord
 
@@ -69,19 +69,19 @@ class Game < ApplicationRecord
   # * references to three objects that represent the three roles. They contain
   #   the ids of the users who play in each respective role. The game does not
   #   use these ids, but provides access to them from the outside.
-  
+
   has_one :reader
   has_one :guesser
-  has_one :judge 
+  has_one :judge
   belongs_to :document
   has_one :whiteboard
 
   @@states = ['ask', 'answer_any', 'answer_reader', 'answer_guesser',
               'judge' ,'score', 'game_over']
   @@roles = [:reader, :guesser, :judge]
-  
+
   #################### CREATORS ####################
-  
+
   # Create a game object and all dependencies.
   # - param document: object of type Document (app/models/document.rb), is the document
   #         the game is played with.
@@ -95,14 +95,14 @@ class Game < ApplicationRecord
     game.guesser = Guesser.create(user_id: guesser_user_id)
     game.judge = Judge.create(user_id: judge_user_id)
     game.whiteboard = Whiteboard.create
-    
+
     document.whiteboards << game.whiteboard
     document.games << game
     return game
   end
 
   #################### OBSERVERS ####################
-  
+
   # Ask if a new round just started.
   # - returns: a boolean indicating whether a new round has started,
   #            but no actions have yet been taken
@@ -132,7 +132,7 @@ class Game < ApplicationRecord
   end
 
   # Get the question for this round.
-  # - raises: NotYetAvailableError if no question is yet available for this round. 
+  # - raises: NotYetAvailableError if no question is yet available for this round.
   # - returns: the question for this round.
   def get_question
     raise NotYetAvailableError if self.state == 'ask'
@@ -290,7 +290,7 @@ class Game < ApplicationRecord
       end
     end
     self.save
-  end  
+  end
 
   # Submit which answer is deemed more suspicious.
   # - param answer_key: Indicates which answer is more suspicious. Must be a key of
@@ -305,6 +305,11 @@ class Game < ApplicationRecord
     self.update(current_questioner: new_questioner)
     (self.update(state: 'game_over') and return) if game_over_condition
     self.update(state: 'ask')
+  end
+
+  # Force the end of the game.
+  def force_end
+    self.update(state: 'game_over')
   end
 
   #################### PRIVATE ####################

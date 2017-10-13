@@ -1,0 +1,2 @@
+class SyncGamesManagersController < ApplicationController
+end

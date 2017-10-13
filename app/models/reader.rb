@@ -29,7 +29,7 @@ class Reader < ApplicationRecord
   end
 
   # Get the question for this round.
-  # - raises: NotYetAvailableError if no question is yet available for this round. 
+  # - raises: NotYetAvailableError if no question is yet available for this round.
   # - returns: the question for this round.
   def get_question
     self.game.get_question
@@ -89,6 +89,12 @@ class Reader < ApplicationRecord
     self.game.get_document_type
   end
 
+  # Get the document's name.
+  # - returns: string
+  def get_document_name
+    self.game.document.title
+  end
+
   # Ask whether the game has concluded.
   # - returns a boolean indicating if the game has concluded.
   def is_game_over
@@ -96,7 +102,7 @@ class Reader < ApplicationRecord
   end
 
   #################### MUTATORS ####################
-  
+
   # Submit a question to the game.
   # - param question: a nonempty string that represents the question
   # - raises: RoleMismatchError if reader is not the current questioner

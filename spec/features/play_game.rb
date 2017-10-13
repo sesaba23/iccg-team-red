@@ -2,9 +2,15 @@ require 'rails_helper.rb'
 
 describe "Players", :type => :feature do
   before :each do
-    @text = "Orcas are the largest type of dolphin. They are appex predators. There prey includes fish including the great white shark, other whales and sealions."
-    @document = FactoryGirl.create(:document, :id => 1, :doc_type => 'text',
-                                   :text => @text)
+    @title = 'Orcas'
+    @content = "Orcas are the largest type of dolphin. They are apex " \
+      "predators. There prey includes fish including the great white shark, " \
+      "other whales and sealions."
+    @document = FactoryGirl.create :document,
+      id: 1,
+      kind: 'plain text',
+      title: @title,
+      content: @text
     @game = Game.setup(@document, 1, 2, 3)
     @reader = @game.reader
     @guesser = @game.guesser
