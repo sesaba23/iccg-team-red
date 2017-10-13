@@ -1,45 +1,36 @@
 class JudgesController < ApplicationController
 
-  def waiting_for_question
-    judge = Judge.find_by_id(params[:id])
-    if judge.question_available?
-      redirect_to waiting_for_answers_game_judge_path and return
-    end
-    @whiteboard = judge.get_whiteboard_hashes
-    @document = judge.get_document_text
-    @scores = judge.get_scores
+  before_action :get_judge
+  
+  def get_round_data
+    question = if @player.question_available? then @player.get_question else "" end
+    answers = if @player.answers_available? then @player.get_answers else nil end
+    round_data = {new_round: @player.new_round?,
+                  question_available: @player.question_available?,
+                  question: question,
+                  answers_available: @player.answers_available?,
+                  answers: answers,
+                  scores: @player.get_scores,
+                  whiteboard: @player.get_whiteboard_hashes}
+    render json: round_data
+  end
+  
+  def get_document_data
+    document = {type: @player.get_document_type,
+                title: @player.get_document_name,
+                body: @player.get_document_text}
+    render json: document
   end
 
-  def waiting_for_answers
-    judge = Judge.find_by_id(params[:id])
-    if judge.answers_available?
-      redirect_to judging_game_judge_path and return
-    end
-    @whiteboard = judge.get_whiteboard_hashes
-    @document = judge.get_document_text
-    @question = judge.get_question
-    @scores = judge.get_scores
+  def select_better_answer
+    other = {answer1: :answer2, answer2: :answer1}
+    @player.more_suspect_is(other[params[:better_answer].to_sym])
   end
 
-  def judging
-    judge = Judge.find_by_id(params[:id])
-    unless judge.answers_available?
-      redirect_to waiting_for_question_game_judge_path and return
-    end
-    if params[:judgement]
-      judge.more_suspect_is(params[:judgement].to_sym)
-      if judge.is_game_over
-        redirect_to game_over_game_path(judge.game) and return
-      else
-        redirect_to waiting_for_question_game_judge_path and return
-      end
-    end
-    @whiteboard = judge.get_whiteboard_hashes
-    @document = judge.get_document_text
-    @question = judge.get_question
-    @scores = judge.get_scores
-    answers = judge.get_answers
-    @answer1 = answers[:answer1]
-    @answer2 = answers[:answer2]
+  private
+
+  def get_judge
+    @player = Judge.find(params[:id])
   end
+  
 end

@@ -76,7 +76,7 @@ class Reader < ApplicationRecord
   #            * link: url as a string
   #            * embedded_youtube: url for (embedded) youtube video as a string
   def get_document_text
-    self.game.document
+    self.game.document_content
   end
 
   # Get the type of the document for this game.
@@ -87,6 +87,12 @@ class Reader < ApplicationRecord
   #            * :embedded_youtube
   def get_document_type
     self.game.get_document_type
+  end
+
+  # Get the document's name.
+  # - returns: string
+  def get_document_name
+    self.game.document.title
   end
 
   # Ask whether the game has concluded.

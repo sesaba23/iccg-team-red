@@ -60,25 +60,27 @@ Rails.application.routes.draw do
     end
     resources :readers do
       member do
-        get 'ask'
-        get 'answer'
-        get 'waiting_for_question'
-        get 'review'
+        get 'show'
+        get 'get_round_data'
+        get 'get_document_data'
+        post 'submit_question'
+        post 'submit_answer'
       end
     end
     resources :guessers do
       member do
-        get 'ask'
-        get 'answer'
-        get 'waiting_for_question'
-        get 'review'
+        get 'show'
+        get 'get_round_data'
+        post 'submit_question'
+        post 'submit_answer'
       end
     end
     resources :judges do
       member do
-        get 'waiting_for_question'
-        get 'waiting_for_answers'
-        get 'judging'
+        get 'show'
+        get 'get_round_data'
+        get 'get_document_data'
+        post 'select_better_answer'
       end
     end
   end

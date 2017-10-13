@@ -4,7 +4,6 @@ class CreateSyncGamesManagers < ActiveRecord::Migration[5.1]
       t.text :user_state
       t.text :games
       t.text :old_request
-      t.text :old_request_docs
 
       t.timestamps
     end

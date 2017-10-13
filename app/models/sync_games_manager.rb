@@ -1,6 +1,3 @@
-
-require 'byebug'
-
 ## Purpose:
 ## The purpose of this model is to coordinate the other models that are involved in playing
 ## synchronous games.

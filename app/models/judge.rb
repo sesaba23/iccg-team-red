@@ -76,6 +76,12 @@ class Judge < ApplicationRecord
     self.game.document
   end
 
+  # Get the document's title.
+  # - returns: a string
+  def get_document_name
+    self.game.document.title
+  end
+
   # Ask whether the game has concluded.
   # - returns a boolean indicating if the game has concluded.
   def is_game_over
@@ -86,7 +92,7 @@ class Judge < ApplicationRecord
 
   # Submit which answer is deemed more suspicious.
   # - param answer_key: Indicates which answer is more suspicious. Must be a key of
-  #         the hash returned by get_anonymized_answers.
+  #         the hash returned by get_answers.
   # - raises: NotYetAvailableError if both answers are not yet available for this round.
   def more_suspect_is(answer)
     self.game.more_suspect_answer_is(answer)
